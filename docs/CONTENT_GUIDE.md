@@ -43,6 +43,19 @@ Copia este bloque en un archivo de `src/content/challenges/` y llénalo:
 Para retos calificados por el facilitador, cambia `options` por `outcomes` (`success`, `partial`, `fail`)
 y describe en `facilitator.notes` el **criterio** de cada nivel.
 
+### Público vs. privado
+
+Todo lo que va en `narrative`, `items`, `table`, `instructions`, `followUp`, `takeaway`, `callbacks`
+y en el `feedback` se proyecta. Todo lo que va en `facilitator.*`, `secret`, `criteria`,
+`facilitatorFlags` y `bonuses` sólo lo ve el facilitador. Los números de los efectos nunca se
+proyectan salvo que el facilitador cambie el modo a "Números".
+
+Para conectar decisiones a lo largo del día:
+- **Callback** (texto que aparece si el equipo hizo algo antes): reto 11 recuerda "eliminaron capacitación".
+- **Bandera del facilitador**: la marca a mano durante el reto (reto 01, 05, 14).
+- **Bono**: ajuste extra por equipo (reto 06) o para registrar una elección que dispara un mini evento (reto 08).
+- **Evento con respuesta**: el evento pregunta y el equipo decide (Todo urge, La persona clave).
+
 ## 3. Qué tipo usar
 
 | Si quieres… | Usa |
@@ -100,7 +113,13 @@ En `src/content/results.ts`. Los perfiles se evalúan **en orden** y gana el pri
 condición; el último debe quedar sin condición (respaldo). Escríbelos en positivo: describen un
 estilo de dirección y su área de oportunidad.
 
-## 8. Checklist antes de un ensayo
+## 8. Revisar el balance
+
+`BALANCE=1 npm test -- balance` simula 300 partidas y muestra cómo se reparten perfiles, eventos
+e indicadores finales, además del "techo" de un equipo que siempre elige lo mejor. Si un perfil o
+evento nunca aparece, su umbral es inalcanzable con los efectos actuales.
+
+## 9. Checklist antes de un ensayo
 
 - [ ] `npm test` en verde (sin referencias rotas).
 - [ ] Cada reto tiene `facilitator.notes` con el concepto del diplomado que activa.

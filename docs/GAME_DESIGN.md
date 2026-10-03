@@ -1,6 +1,6 @@
 # Documento de diseño — Punto Crítico
 
-> Estado: base funcional. Concepto, historia y contenido son provisionales.
+> Estado: base funcional con el contenido v1 del documento "Punto Crítico" (15 retos).
 
 ## 1. Concepto
 
@@ -89,6 +89,10 @@ eventos y retos futuros sin que el consecuente sea obvio en el momento de decidi
 
 ## 7. Eventos
 
+Cada evento declara su tipo (`kind`): **condicional**, **consecuencia** o **sorpresa**. Puede incluir
+una pregunta rápida, un mensaje de cierre y respuestas (`options`) cuyo efecto se suma al automático.
+
+
 Aparecen como modal sobre el proyector y el facilitador decide **Aplicar** o **Descartar**.
 
 - **Condicionales** (`trigger`): se evalúan para cada equipo al iniciar cada paso.
@@ -113,6 +117,13 @@ equipo (`repeatable` lo cambia); `minStep` evita disparos demasiado tempranos.
 
 Los retos **inyectados** se asignan al equipo que los provocó y no rotan el turno.
 El facilitador puede cambiar el equipo en turno en cualquier momento.
+
+## 8b. Público vs. facilitador
+
+La pantalla pública prioriza narrativa y consecuencias: muestra hacia dónde se movió cada indicador
+(▲/▼, más flechas = impacto mayor) pero no los números. El facilitador ve números, criterios,
+referencias, banderas y bonos. Los secretos (figura del reto 02, tarjetas del reto 06) se ven en una
+vista privada aparte. El final no ordena equipos por puntos: muestra perfil, indicadores y reconocimientos.
 
 ## 9. Persistencia
 

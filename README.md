@@ -9,7 +9,8 @@ la conduce un facilitador. Duración objetivo: ~90 minutos.
 > indicadores (Resultados, Equipo, Liderazgo, Recursos, Reputación) y algunas dejan
 > consecuencias que aparecen varios turnos después.
 
-El nombre "Punto Crítico", la historia y todo el contenido son **provisionales (mock)**.
+El contenido v1 (15 retos, 9 eventos, 6 perfiles y 7 reconocimientos) viene del documento
+"Punto Crítico" entregado por Carlos y vive en `src/content/`.
 
 ---
 
@@ -28,7 +29,8 @@ Abre http://localhost:5173. Otros comandos:
 |---|---|
 | `npm run build` | Revisa tipos y genera la versión de producción en `dist/` |
 | `npm run preview` | Sirve la versión de producción |
-| `npm test` | Pruebas del motor y validación del contenido |
+| `npm test` | Pruebas del motor, validación del contenido y simulación de balance |
+| `BALANCE=1 npm test -- balance` | Muestra el reporte de balance (300 partidas simuladas) |
 | `npm run lint` | Linter (oxlint) |
 
 No necesita internet durante el evento (las fuentes vienen incluidas) ni variables de entorno.
@@ -42,6 +44,15 @@ No necesita internet durante el evento (las fuentes vienen incluidas) ni variabl
    facilitador califica (Éxito / Parcial / Fallo). Los cambios en indicadores se muestran al instante.
 5. **Continuar** → avanza; si una condición se cumple, aparece un evento sobre la pantalla.
 6. Al terminar la agenda se muestran **resultados finales**: indicadores, perfil gerencial y reconocimientos.
+
+**Lo que ve el público vs. lo que ve el facilitador.** En pantalla se muestra la narrativa y
+*hacia dónde* se movió cada indicador (▲▲ / ▼), no los números. El panel del facilitador siempre muestra
+los números, las notas privadas, la respuesta de referencia, las banderas y los bonos. El modo de
+efectos en pantalla (Ocultos / Flechas / Números) se cambia en vivo desde el panel.
+
+**Vista privada (#/privado):** para retos con información secreta (la figura del reto 02, las
+tarjetas de objetivos del reto 06), el botón "🔒 Vista privada" del panel abre una ventana que se
+muestra sólo al representante (en la laptop o un celular, nunca en el proyector).
 
 **Panel del facilitador:** botón 🎛️ o tecla **F**. Desde ahí: regresar (deshacer), avanzar, saltar,
 pausar, temporizador, calificar, ajustar indicadores, activar eventos, ver notas privadas, historial
@@ -94,7 +105,9 @@ src/
 │   ├── teamPresets.ts    colores e íconos para equipos
 │   ├── challenges/       retos (uno o varios archivos) + index.ts que los junta
 │   ├── events.ts         eventos condicionales, consecuencias y sorpresas
+│   ├── flags.ts          catálogo de banderas (nombre legible de cada marca)
 │   ├── results.ts        perfiles gerenciales y reconocimientos
+│   ├── balance.test.ts   simulación de balance
 │   └── index.ts          ensambla el contenido + validateContent()
 ├── engine/               ← lógica pura
 │   ├── types.ts          todos los tipos (Challenge, GameEvent, Effect, Condition, GameState…)
@@ -151,6 +164,24 @@ docs/
    Los retos que sólo aparecen por un evento **no** van en la agenda.
 5. Corre `npm test`: la validación avisa de ids mal escritos o referencias rotas.
 
+### Campos públicos y privados de un reto
+
+| Público (se proyecta) | Privado (sólo facilitador) |
+|---|---|
+| `narrative`, `items`, `table`, `instructions` | `facilitator.notes`, `facilitator.reference`, `facilitator.debrief` |
+| `followUp` (cuando el facilitador lo revela) | `secret` (figura, tarjetas) → vista privada |
+| `takeaway` (tras resolver), `callbacks` (según historial) | `outcomes[x].criteria`, efectos numéricos |
+| feedback de opciones/resultados | `facilitatorFlags`, `bonuses` |
+
+Otros campos útiles: `code` (número de reto), `clock` (hora en pantalla), `minutes` (duración
+planeada), `inPerson` (presencial), `ambience: 'crisis'` (pantalla de alerta), `showDossier`
+(expediente por equipo, usado en El Consejo). Los resultados calificados pueden tener claves propias
+(p. ej. `'rechazo-rigido'`) indicando `tone: 'fail'`.
+
+**Tipo de pieza:** reto principal = está en `agenda`; consecuencia diferida = evento `kind: 'consequence'`;
+evento condicional = `kind: 'conditional'` con `trigger`; reto global = `turnMode: 'all-teams'` o
+`'interaction'`; reto por equipo = `active-team`; reto presencial = `inPerson: true`.
+
 ## Cómo agregar una categoría
 
 Agrega `{ id, label, icon }` a `src/content/categories.ts` y úsala en `categories` de los retos.
@@ -183,9 +214,17 @@ Condiciones disponibles: `indicator`, `resource`, `flag`, `chose` (eligió tal o
 El motor revisa los `trigger` al iniciar cada paso (máximo un evento condicional por equipo por paso;
 por defecto cada evento se dispara una vez por equipo, `repeatable: true` lo cambia).
 
+Cada evento declara `kind` (`conditional`, `consequence` o `surprise`), puede tener `question`,
+`takeaway` y `options` (respuestas que se suman al efecto automático, p. ej. "gastar Recursos para
+recuperar a la persona"). `maxStep` limita hasta cuándo puede aparecer.
+
 **Consecuencias diferidas:** en el efecto de una opción usa
 `schedule: [{ event: 'clima-tenso', afterSteps: 2 }]` y el evento aparecerá dos pasos después.
 **Banderas ocultas:** `setFlags: ['sobrecarga']` / `clearFlags` marcan al equipo para condiciones futuras.
+Toda bandera debe existir en `flags.ts` (la validación lo revisa). Con `facilitatorFlags` en un reto,
+el facilitador las marca a mano (p. ej. "ignoraron al cliente" en el reto 01).
+**Bonos:** `bonuses` en un reto son ajustes que el facilitador otorga por equipo (una vez; los del mismo
+`group` son excluyentes). Pueden programar mini eventos (reto 08: proveedor elegido).
 **Eventos sin `trigger`** sólo aparecen por consecuencia o si el facilitador los activa.
 
 ## Cómo cambiar la configuración de partida
@@ -208,34 +247,43 @@ libre: horas, fases, lo que sea).
 
 ## Estado actual
 
-**Terminado y verificado** (build, lint, 12 pruebas, partida completa jugada en el navegador a 1920×1080):
+**Terminado y verificado** (build, lint, 19 pruebas incluida una simulación de 300 partidas, y una
+partida completa jugada en el navegador a 1920×1080 sin errores de consola):
 
-- Motor de juego tipado y probado: indicadores, recursos, banderas, condiciones, efectos,
-  consecuencias diferidas, eventos condicionales, retos inyectados, modos de turno
-  (equipo activo, todos los equipos, interacción), temporizador e historial completo
-  (decisión, equipo, indicadores antes/después, banderas, hora).
-- Flujo completo: portada → configuración de equipos → tablero → retos → eventos → marcador → final.
-- Panel del facilitador (cajón con tecla F o ventana aparte sincronizada) con deshacer, avanzar,
-  saltar, pausar, temporizador, calificación, ajustes manuales, eventos, notas privadas, historial
-  y respaldo/carga en JSON.
-- Persistencia local: recargar la página conserva la partida (incluida la pila de deshacer).
-- Resultados finales: ranking por índice global, perfil gerencial, reconocimientos y decisiones tomadas.
-- Sonidos sintetizados con botón de silencio; animaciones ligeras (respetan "reducir movimiento").
-- Validación automática del contenido (`npm test`).
+- Motor de juego tipado y probado: indicadores, banderas, condiciones (incluida la diferencia entre
+  indicadores), efectos, consecuencias diferidas, eventos condicionales con ventana de pasos, eventos
+  con respuesta, bonos del facilitador, retos inyectados, modos de turno, temporizador e historial.
+- **Contenido v1 cargado**: 15 retos con hora, duración y efectos del documento; 9 eventos (2 sorpresas
+  condicionales tempranas, consecuencia A, 3 mini eventos de proveedor, 3 condicionales tardíos); 6
+  perfiles; 7 reconocimientos; textos de cierre.
+- Separación público / privado: en pantalla flechas en vez de números; el facilitador ve todo.
+- Vista privada para la figura del reto 02 y las tarjetas del reto 06.
+- Expediente por equipo en El Consejo; resultados finales sin ranking; "Misión completada" y pantalla final.
+- Persistencia local, deshacer y ventana del facilitador sincronizada.
 
-**Provisional:**
+**Provisional / por definir:**
 
-- Nombre, historia, los 12 retos y 9 eventos son mock para probar el motor.
-- Perfiles gerenciales y reconocimientos: reglas simples de ejemplo.
-- Identidad visual neutral ("centro de mando"); aún sin la marca de AMV ni del proveedor del diplomado.
-- El modo `per-team` (cada equipo un reto distinto) está tipado pero se comporta como "todos los equipos".
-- La pantalla de resultados no exporta reporte (PDF) todavía.
+- **Balance (importante):** con los números del documento, incluso un equipo que siempre elige lo
+  mejor termina cerca de **Equipo 63 y Reputación 61** (4 equipos). Por eso hoy son prácticamente
+  inalcanzables: perfil *Constructor de equipos* (Equipo ≥ 75), *Negociador* y el evento *La reputación
+  habla* (Reputación ≥ 75). En simulación aleatoria ~78% de los equipos cae en el perfil de respaldo.
+  Causa: casi toda la Reputación y gran parte de Equipo vienen de retos de "equipo activo", y cada
+  equipo sólo juega 1–2 de ellos. Opciones: bajar umbrales, subir efectos o volver globales algunos retos.
+  Verlo con `BALANCE=1 npm test -- balance`.
+- Perfil de respaldo "Estilo en construcción": no viene en el documento; hace falta para equipos que
+  no cumplen ningún perfil.
+- Reto 02: figura provisional en `public/figuras/mensaje-imposible.svg`.
+- Reto 06: sólo hay 3 tarjetas de objetivo secreto (las del ejemplo); faltan las de los equipos 4–6.
+- Reto 14: el resultado de cada camino (lanzar / retrasar / piloto) aún no está definido; hoy sólo se
+  registra el camino elegido.
+- Reto 01 "riesgo_proveedor" y reto 09 "promesa_sin_informacion" se registran pero aún no detonan nada.
+- Consecuencia A: aparece 3 retos después del 03 (justo antes del reto 07), como dice el documento.
+- Identidad visual neutral ("centro de mando"), sin marca aplicada.
 
 **Recomendado para la siguiente iteración:**
 
-1. Escribir el contenido real (ver `docs/CONTENT_GUIDE.md`): 12–15 retos, 3–5 sorpresas, balancear efectos.
-2. Aplicar identidad de marca (tokens en `src/index.css`) y definir el nombre final.
-3. Ensayo completo cronometrado con facilitadores para calibrar tiempos y efectos.
-4. Implementar el modo `per-team` real y un mazo opcional de eventos aleatorios.
-5. Exportar el resumen final (PDF o imagen) y una vista de historial por equipo para el cierre.
-6. Si se necesita: adaptador `GameStorage` para Supabase (respaldo en la nube / varios dispositivos).
+1. Decidir el ajuste de balance y volver a correr la simulación.
+2. Completar tarjetas del reto 06, figura definitiva del reto 02 y resultados del reto 14.
+3. Ensayo cronometrado con facilitadores (la agenda suma 85 min planeados + eventos).
+4. Aplicar identidad de marca (tokens en `src/index.css`).
+5. Exportar el expediente / resultados finales (PDF) para entregar a cada equipo.
