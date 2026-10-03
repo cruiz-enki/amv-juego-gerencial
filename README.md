@@ -9,12 +9,45 @@ la conduce un facilitador. Duración objetivo: ~90 minutos.
 > indicadores (Resultados, Equipo, Liderazgo, Recursos, Reputación) y algunas dejan
 > consecuencias que aparecen varios turnos después.
 
-El contenido v1 (15 retos, 9 eventos, 6 perfiles y 7 reconocimientos) viene del documento
+El contenido (15 retos, 11 eventos, 6 perfiles + respaldo, 7 reconocimientos) viene del documento
 "Punto Crítico" entregado por Carlos y vive en `src/content/`.
 
 ---
 
-## Cómo correrlo
+## Probar en línea
+
+**https://amv-juego-gerencial.vercel.app**
+
+Despliegue estático en Vercel (HTTPS, sin backend, sin login). Cada `git push` a `main` vuelve a
+desplegar producción automáticamente.
+
+| URL | Para qué |
+|---|---|
+| **https://amv-juego-gerencial.vercel.app** | **La que se PROYECTA.** Juego, tablero, retos, eventos y resultados. |
+| **https://amv-juego-gerencial.vercel.app/facilitador** | **La del FACILITADOR** (tu laptop o tablet): todos los controles, notas privadas y números. |
+| **https://amv-juego-gerencial.vercel.app/privado** | **Vista privada**: figura del reto 02 y tarjetas secretas del reto 06. Nunca en el proyector. |
+
+Las tres vistas se sincronizan solas **si están abiertas en el mismo navegador del mismo equipo**
+(comparten el almacenamiento local). En un dispositivo distinto (p. ej. tu teléfono) la partida es
+independiente. El panel también se abre dentro del proyector con el botón 🎛️ o la tecla **F**.
+
+## Uso durante el evento
+
+1. **Abrir el proyecto**: en la laptop conectada al proyector, abrir la URL principal y poner
+   pantalla completa (botón ⛶).
+2. **Configurar equipos**: *Nueva partida* → número de equipos (2–6), nombres, íconos, colores.
+3. **Proyectar**: deja esa ventana en el proyector (pantalla extendida).
+4. **Abrir el facilitador**: en la misma laptop, abre `/facilitador` en otra ventana (o el botón
+   🎛️ → *Abrir en otra ventana*) y déjala en la pantalla de la laptop.
+5. **Comenzar**: *Comenzar el día* → *Abrir reto*. Califica o registra a cada equipo desde el panel
+   (o tocando las tarjetas del proyector) y pulsa *Continuar*. Los eventos aparecen solos.
+6. **Si se recarga la página**: no pasa nada; la partida sigue exactamente donde estaba (incluido
+   "Regresar").
+7. **Respaldo**: panel → *Partida* → **Descargar respaldo** (archivo `.json`). Para recuperarlo:
+   *Cargar respaldo*. Recomendado al terminar cada bloque horario.
+8. **Reiniciar**: panel → *Partida* → **Reiniciar todo** (pide confirmación y borra la partida).
+
+## Cómo correrlo en local
 
 Requisitos: Node.js 20 o superior.
 
@@ -29,40 +62,11 @@ Abre http://localhost:5173. Otros comandos:
 |---|---|
 | `npm run build` | Revisa tipos y genera la versión de producción en `dist/` |
 | `npm run preview` | Sirve la versión de producción |
-| `npm test` | Pruebas del motor, validación del contenido y simulación de balance |
-| `BALANCE=1 npm test -- balance` | Muestra el reporte de balance (300 partidas simuladas) |
+| `npm test` | 59 pruebas: motor, contenido, escenarios, persistencia y una simulación corta |
+| `npm run balance` | Simula 5 000 partidas y reescribe `docs/BALANCE_REPORT.md` |
 | `npm run lint` | Linter (oxlint) |
 
-No necesita internet durante el evento (las fuentes vienen incluidas) ni variables de entorno.
-
-### Cómo se usa el día del evento
-
-1. Conecta la laptop al proyector y abre la app en pantalla completa (botón ⛶).
-2. **Nueva partida** → elige número de equipos (2–6), nombres, íconos y colores → **Comenzar el día**.
-3. En el **tablero** se ve la ruta del día, la siguiente misión y los indicadores de cada equipo.
-4. **Abrir reto** → se proyecta la situación. Según el tipo, el equipo elige una opción (A/B/C) o el
-   facilitador califica (Éxito / Parcial / Fallo). Los cambios en indicadores se muestran al instante.
-5. **Continuar** → avanza; si una condición se cumple, aparece un evento sobre la pantalla.
-6. Al terminar la agenda se muestran **resultados finales**: indicadores, perfil gerencial y reconocimientos.
-
-**Lo que ve el público vs. lo que ve el facilitador.** En pantalla se muestra la narrativa y
-*hacia dónde* se movió cada indicador (▲▲ / ▼), no los números. El panel del facilitador siempre muestra
-los números, las notas privadas, la respuesta de referencia, las banderas y los bonos. El modo de
-efectos en pantalla (Ocultos / Flechas / Números) se cambia en vivo desde el panel.
-
-**Vista privada (#/privado):** para retos con información secreta (la figura del reto 02, las
-tarjetas de objetivos del reto 06), el botón "🔒 Vista privada" del panel abre una ventana que se
-muestra sólo al representante (en la laptop o un celular, nunca en el proyector).
-
-**Panel del facilitador:** botón 🎛️ o tecla **F**. Desde ahí: regresar (deshacer), avanzar, saltar,
-pausar, temporizador, calificar, ajustar indicadores, activar eventos, ver notas privadas, historial
-y respaldos. Con **"Abrir en otra ventana"** el panel se abre aparte (p. ej. en la pantalla de la
-laptop mientras el proyector muestra el juego); ambas ventanas se sincronizan solas.
-
-**Si se recarga la página** la partida continúa donde estaba (se guarda en el navegador). Para mayor
-seguridad, "Descargar respaldo" baja un `.json` que se puede volver a cargar.
-
----
+No necesita internet durante el evento una vez cargada la página (las fuentes vienen incluidas) ni variables de entorno.
 
 ## Arquitectura
 
@@ -106,8 +110,8 @@ src/
 │   ├── challenges/       retos (uno o varios archivos) + index.ts que los junta
 │   ├── events.ts         eventos condicionales, consecuencias y sorpresas
 │   ├── flags.ts          catálogo de banderas (nombre legible de cada marca)
+│   ├── negotiation.ts    tarjetas secretas del reto 06 (2–6 equipos)
 │   ├── results.ts        perfiles gerenciales y reconocimientos
-│   ├── balance.test.ts   simulación de balance
 │   └── index.ts          ensambla el contenido + validateContent()
 ├── engine/               ← lógica pura
 │   ├── types.ts          todos los tipos (Challenge, GameEvent, Effect, Condition, GameState…)
@@ -117,7 +121,8 @@ src/
 │   ├── selectors.ts      consultas derivadas (equipo activo, progreso, índice global…)
 │   ├── results.ts        perfiles, reconocimientos, ranking
 │   └── engine.test.ts
-├── state/                proveedor React, persistencia, hook useGame
+├── state/                proveedor React, deshacer (rootReducer), persistencia, hook useGame
+├── sim/                  simulador de balance (npm run balance)
 ├── components/           GameBoard, TeamCard, IndicatorBar, ChallengeCard, DecisionOptions,
 │   │                     OutcomeButtons, Timer, EventModal, Scoreboard, FinalResults…
 │   └── facilitator/      secciones del panel del facilitador
@@ -245,45 +250,61 @@ libre: horas, fases, lo que sea).
 
 ---
 
+## Cambios de balance (iteración 3)
+
+Todos los cambios numéricos respecto al documento original:
+
+| Cambio | Antes | Ahora | Motivo |
+|---|---|---|---|
+| Retos 03, 09, 11, 12, 14 | equipo en turno | **todos los equipos** | más participación; Equipo y Reputación ya pueden crecer |
+| Constructor de equipos | Equipo ≥ 75 | Equipo ≥ 68 y Liderazgo ≥ 65 | indicado por Carlos |
+| Negociador | Reputación ≥ 75 | Reputación ≥ 68 y Recursos ≥ 60 | indicado por Carlos |
+| Ejecutor | Resultados ≥ 80 | Resultados ≥ 75 | indicado por Carlos |
+| Evento "La reputación habla" | Reputación ≥ 75 | Reputación ≥ 65 | indicado por Carlos |
+| Reto 01 · éxito | — | +2 Reputación | Reputación casi no podía subir (ajuste moderado) |
+| Reto 02 · éxito | Liderazgo +4 | Liderazgo +2 | Liderazgo se saturaba en 100 |
+| Reto 04 · éxito | Liderazgo +5 | Liderazgo +3 y +2 Reputación | ídem |
+| Reto 10 · excelente | Liderazgo +8 | Liderazgo +6 y +3 Reputación | ídem; contienen al cliente que amenaza cancelar |
+| Orden de perfiles | orden del documento | Equilibrado → Negociador → Constructor → Estratega → Ejecutor → Bombero | sin esto Negociador quedaba "tapado" (0%) |
+| Reto 14 | sólo registraba el camino | A/B/C con efectos preconfigurados + argumento como bono | indicado por Carlos |
+| `riesgo_proveedor` | sin efecto | −3 Resultados en el primer problema de proveedor (una vez) | indicado por Carlos |
+| `promesa_sin_informacion` | sin efecto | evento "La promesa regresa" (−6 Lid, −5 Eq, −4 Rep), una vez | indicado por Carlos |
+
+Resultado (5 000 partidas, ver `docs/BALANCE_REPORT.md`): todos los perfiles son alcanzables
+(el más raro, Equipo equilibrado, ~1%), ninguno pasa de 50% jugando al azar y todos los eventos
+ocurren. Una estrategia "óptima" pura (siempre lo que más suma) termina siempre en Negociador: es
+un caso límite, no un estilo real.
+
 ## Estado actual
 
-**Terminado y verificado** (build, lint, 19 pruebas incluida una simulación de 300 partidas, y una
-partida completa jugada en el navegador a 1920×1080 sin errores de consola):
+**Terminado y verificado**
 
-- Motor de juego tipado y probado: indicadores, banderas, condiciones (incluida la diferencia entre
-  indicadores), efectos, consecuencias diferidas, eventos condicionales con ventana de pasos, eventos
-  con respuesta, bonos del facilitador, retos inyectados, modos de turno, temporizador e historial.
-- **Contenido v1 cargado**: 15 retos con hora, duración y efectos del documento; 9 eventos (2 sorpresas
-  condicionales tempranas, consecuencia A, 3 mini eventos de proveedor, 3 condicionales tardíos); 6
-  perfiles; 7 reconocimientos; textos de cierre.
-- Separación público / privado: en pantalla flechas en vez de números; el facilitador ve todo.
-- Vista privada para la figura del reto 02 y las tarjetas del reto 06.
-- Expediente por equipo en El Consejo; resultados finales sin ranking; "Misión completada" y pantalla final.
-- Persistencia local, deshacer y ventana del facilitador sincronizada.
+- Build, lint y **59 pruebas** en verde (motor, contenido, retos multi-equipo, reto 14, consecuencias,
+  tarjetas de negociación, umbrales y perfiles, deshacer, localStorage, sincronización entre ventanas,
+  restauración tras recarga y partidas completas con 2–6 equipos).
+- Simulación de balance: 5 000 partidas con 5 estilos de juego.
+- Partida completa manual con 4 equipos (configuración → retos 01–15 → eventos → El Consejo →
+  resultados → cierre → reinicio), sin errores de consola.
+- Proyector 1920×1080 con 2, 4 y 6 equipos: ningún reto hace scroll (salvo El Consejo, a propósito,
+  por el expediente).
+- **Desplegado en producción** en https://amv-juego-gerencial.vercel.app (HTTPS, rutas SPA,
+  recarga en `/facilitador` y `/privado` funciona). Sincronización proyector ↔ facilitador probada en
+  el dominio desplegado.
 
-**Provisional / por definir:**
+**Provisional**
 
-- **Balance (importante):** con los números del documento, incluso un equipo que siempre elige lo
-  mejor termina cerca de **Equipo 63 y Reputación 61** (4 equipos). Por eso hoy son prácticamente
-  inalcanzables: perfil *Constructor de equipos* (Equipo ≥ 75), *Negociador* y el evento *La reputación
-  habla* (Reputación ≥ 75). En simulación aleatoria ~78% de los equipos cae en el perfil de respaldo.
-  Causa: casi toda la Reputación y gran parte de Equipo vienen de retos de "equipo activo", y cada
-  equipo sólo juega 1–2 de ellos. Opciones: bajar umbrales, subir efectos o volver globales algunos retos.
-  Verlo con `BALANCE=1 npm test -- balance`.
-- Perfil de respaldo "Estilo en construcción": no viene en el documento; hace falta para equipos que
-  no cumplen ningún perfil.
-- Reto 02: figura provisional en `public/figuras/mensaje-imposible.svg`.
-- Reto 06: sólo hay 3 tarjetas de objetivo secreto (las del ejemplo); faltan las de los equipos 4–6.
-- Reto 14: el resultado de cada camino (lanzar / retrasar / piloto) aún no está definido; hoy sólo se
-  registra el camino elegido.
-- Reto 01 "riesgo_proveedor" y reto 09 "promesa_sin_informacion" se registran pero aún no detonan nada.
-- Consecuencia A: aparece 3 retos después del 03 (justo antes del reto 07), como dice el documento.
-- Identidad visual neutral ("centro de mando"), sin marca aplicada.
+- Reto 02: la figura (`public/figuras/mensaje-imposible.svg`) es provisional.
+- Reto 06: las 6 tarjetas (`src/content/negotiation.ts`) son una propuesta de diseño; revisar montos
+  y redacción.
+- Perfil de respaldo "Estilo en construcción" y su texto.
+- Textos de feedback del reto 14 y de los nuevos eventos se tomaron del encargo; el resto de
+  feedback por opción no existe en el documento (los retos 03 y 09 sólo tienen mensaje general).
+- Identidad visual neutral ("centro de mando"), sin marca aplicada; sin dominio propio.
+- Sonidos sintetizados de prueba.
 
-**Recomendado para la siguiente iteración:**
+**Siguiente iteración recomendada**
 
-1. Decidir el ajuste de balance y volver a correr la simulación.
-2. Completar tarjetas del reto 06, figura definitiva del reto 02 y resultados del reto 14.
-3. Ensayo cronometrado con facilitadores (la agenda suma 85 min planeados + eventos).
-4. Aplicar identidad de marca (tokens en `src/index.css`).
-5. Exportar el expediente / resultados finales (PDF) para entregar a cada equipo.
+1. Ensayo cronometrado con facilitadores (la agenda suma 85 min planeados + eventos).
+2. Figura definitiva del reto 02 y revisión de las tarjetas del reto 06 (imprimibles).
+3. Marca y dominio (p. ej. `puntocritico.aprendiendum.mx`).
+4. Exportar el expediente de cada equipo (PDF) para entregarlo en El Consejo.

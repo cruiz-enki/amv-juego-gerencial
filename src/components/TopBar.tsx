@@ -13,12 +13,16 @@ export function TopBar({ onOpenFacilitator }: { onOpenFacilitator: () => void })
     <header className="flex items-center justify-between gap-3 border-b border-line bg-ink/60 px-4 py-3 md:gap-6 md:px-8 backdrop-blur">
       <div className="flex min-w-0 items-center gap-3">
         <img src="/favicon.svg" alt="" className="size-10" />
-        <div className="min-w-0">
+        <div className="hidden min-w-0 sm:block">
           <p className="truncate font-display text-xl font-bold tracking-tight">{content.config.title}</p>
           <p className="truncate text-xs tracking-widest text-muted uppercase">Centro de mando</p>
         </div>
       </div>
-      {state.status === 'playing' && <GameProgress />}
+      {state.status === 'playing' && (
+        <div className="hidden md:block">
+          <GameProgress />
+        </div>
+      )}
       <nav className="flex items-center gap-2">
         {state.status !== 'setup' && (
           <button
@@ -42,7 +46,7 @@ export function TopBar({ onOpenFacilitator }: { onOpenFacilitator: () => void })
             onClick={onOpenFacilitator}
             title="Panel del facilitador (tecla F)"
           >
-            🎛️ Facilitador
+            🎛️ <span className="hidden sm:inline">Facilitador</span>
           </button>
         )}
       </nav>

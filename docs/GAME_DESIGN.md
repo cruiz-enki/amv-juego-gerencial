@@ -106,17 +106,19 @@ equipo (`repeatable` lo cambia); `minStep` evita disparos demasiado tempranos.
 
 ## 8. Turnos
 
-`TurnMode` por reto (o sobrescrito en la agenda):
+`TurnMode` por reto (o sobrescrito en la agenda). Desde la iteración 3, **14 de los 15 retos los
+resuelven todos los equipos a la vez**; sólo el reto 07 (Ventas vs. Operaciones) conserva un equipo
+protagonista que rota.
 
 | Modo | Estado |
 |---|---|
-| `active-team` — un equipo responde; el turno rota tras cada reto de este tipo | ✅ |
+| `active-team` — un equipo responde; el turno rota tras cada reto de este tipo | ✅ (reto 07) |
 | `all-teams` — todos resuelven el mismo reto; se registra por equipo | ✅ |
-| `interaction` — negociación entre equipos; el facilitador califica a cada uno | ✅ (como `all-teams`) |
+| `interaction` — negociación entre equipos; el facilitador califica a cada uno | ✅ (reto 06) |
 | `per-team` — cada equipo recibe un reto distinto | ⏳ tipado, pendiente |
 
-Los retos **inyectados** se asignan al equipo que los provocó y no rotan el turno.
-El facilitador puede cambiar el equipo en turno en cualquier momento.
+En pantalla, los retos multi-equipo muestran una tarjeta compacta por equipo (2–3 columnas) y las
+consecuencias agrupadas por opción en el panel lateral, para que 6 equipos quepan en 1920×1080.
 
 ## 8b. Público vs. facilitador
 
