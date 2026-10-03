@@ -14,7 +14,20 @@ interface Change {
  * Cambios mostrados al PÚBLICO. Según la configuración se ocultan, se muestran
  * como flechas (▲▲ / ▼) o con números. El facilitador siempre ve números aparte.
  */
-export function PublicEffects({ entry, effect, size = 'md', center = false }: { entry?: HistoryEntry; effect?: Effect; size?: 'sm' | 'md'; center?: boolean }) {
+export function PublicEffects({
+  entry,
+  effect,
+  size = 'md',
+  center = false,
+  iconsOnly = false,
+}: {
+  entry?: HistoryEntry
+  effect?: Effect
+  size?: 'sm' | 'md'
+  center?: boolean
+  /** Sólo ícono + flechas (para tarjetas compactas). */
+  iconsOnly?: boolean
+}) {
   const { state, content } = useGame()
   if (state.publicEffects === 'hidden') return null
 
@@ -37,6 +50,18 @@ export function PublicEffects({ entry, effect, size = 'md', center = false }: { 
   }
   if (changes.length === 0) return null
   const numeric = state.publicEffects === 'numeric'
+  if (iconsOnly) {
+    return (
+      <span className="inline-flex flex-wrap gap-x-2 text-sm font-semibold">
+        {changes.map((c) => (
+          <span key={c.key} title={c.label} className={c.delta > 0 ? 'text-success' : 'text-danger'}>
+            {c.icon}
+            {numeric ? `${c.delta > 0 ? '+' : ''}${c.delta}` : arrows(c.delta)}
+          </span>
+        ))}
+      </span>
+    )
+  }
 
   return (
     <ul className={`flex flex-wrap gap-2 ${center ? 'justify-center' : ''}`}>

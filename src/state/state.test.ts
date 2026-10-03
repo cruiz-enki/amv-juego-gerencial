@@ -50,6 +50,19 @@ describe('deshacer (Regresar)', () => {
     expect(g.state.teams[0].indicators.liderazgo).toBe(50)
   })
 
+  it('los bonos del facilitador también se pueden deshacer', () => {
+    let g = started()
+    g = act(g, { type: 'COMPLETE_STEP' } as never) // reto 02
+    for (let i = 0; i < 4; i++) g = act(g, { type: 'SKIP_STEP' } as never) // hasta el reto 06
+    g = { state: { ...g.state, eventQueue: [] }, past: g.past }
+    expect(g.state.agenda[g.state.stepIndex].challenge).toBe('nadie-tiene-todo')
+    const before = g.state
+    g = act(g, { type: 'APPLY_BONUS', teamId: 't1', bonusId: 'acuerdo-explicado' } as never)
+    expect(g.state.teams[0].indicators.reputacion).toBe(before.teams[0].indicators.reputacion + 4)
+    g = act(g, { type: '@UNDO' })
+    expect(g.state).toEqual(before)
+  })
+
   it('no guarda en la pila acciones no deshacibles (temporizador, sonido)', () => {
     let g = started()
     const depth = g.past.length

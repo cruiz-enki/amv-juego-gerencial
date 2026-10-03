@@ -15,6 +15,7 @@ const UNDOABLE = new Set<GameAction['type']>([
   'DISMISS_EVENT',
   'ADJUST',
   'TOGGLE_FLAG',
+  'APPLY_BONUS',
   'FINISH',
 ])
 

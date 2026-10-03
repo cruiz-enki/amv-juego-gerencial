@@ -23,7 +23,7 @@ export function summarizeTeam(team: TeamState, state: GameState, content: GameCo
     profile: content.profiles.find((p) => evaluate(p.match, team, state)),
     strongest: sorted[0]?.id ?? '',
     weakest: sorted[sorted.length - 1]?.id ?? '',
-    decisions: history.filter((h) => h.kind === 'challenge').length,
+    decisions: history.filter((h) => h.kind === 'challenge' && !h.bonusId).length,
     events: history.filter((h) => h.kind === 'event').length,
   }
 }
@@ -44,7 +44,7 @@ function metricValue(award: AwardDef, team: TeamState, state: GameState, content
     case 'balance':
       return -imbalance(team, content.indicators)
     case 'mostDecisions':
-      return state.history.filter((h) => h.teamId === team.id && h.kind === 'challenge').length
+      return state.history.filter((h) => h.teamId === team.id && h.kind === 'challenge' && !h.bonusId).length
     case 'challengeGain':
       return challengeEntries(state, team.id, m.challenges).reduce(
         (sum, h) => sum + Object.keys(h.after).reduce((s, k) => s + (h.after[k] - (h.before[k] ?? 0)), 0),
