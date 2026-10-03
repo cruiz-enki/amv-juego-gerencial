@@ -56,6 +56,14 @@ export interface ResourceDef {
   description?: string
 }
 
+/** Catálogo de banderas: da nombre legible a las marcas ocultas. */
+export interface FlagDef {
+  id: FlagId
+  label: string
+  /** Si aparece en el expediente que se muestra en el cierre (Consejo). */
+  showInDossier?: boolean
+}
+
 export interface TeamPreset {
   color: string
   icon: string
@@ -77,6 +85,8 @@ export type Condition =
   | { outcome: { challenge: ChallengeId; is: OutcomeLevel } }
   | { completed: ChallengeId }
   | { stepAtLeast: number }
+  /** Diferencia entre el indicador más alto y el más bajo del equipo. */
+  | { spread: Comparator; value: number }
 
 // ─── Efectos ──────────────────────────────────────────────────────────────
 export type EffectTarget = 'self' | 'all' | 'others'
@@ -120,32 +130,107 @@ export type ChallengeType =
  */
 export type TurnMode = 'active-team' | 'all-teams' | 'per-team' | 'interaction'
 
-export type OutcomeLevel = 'success' | 'partial' | 'fail'
+/**
+ * Clave de un resultado calificado por el facilitador. Las comunes son
+ * `success`, `partial` y `fail`, pero se permiten otras (p. ej. `accept-all`).
+ */
+export type OutcomeLevel = string
+/** Cómo se pinta un resultado (color/ícono). */
+export type OutcomeTone = 'success' | 'partial' | 'fail'
 
 export interface ChallengeOption {
   id: string
   label: string
   detail?: string
   effect: Effect
-  feedback: string
+  /** Texto público tras elegirla (opcional). */
+  feedback?: string
 }
 
 export interface Outcome {
   label?: string
+  /** Por defecto se deduce de la clave (success/partial/fail). */
+  tone?: OutcomeTone
+  /** Criterio para el facilitador (privado). */
+  criteria?: string
   effect: Effect
-  feedback: string
+  feedback?: string
+}
+
+/** Ajuste extra que el facilitador otorga a un equipo (bonificación, mini-evento…). */
+export interface Bonus {
+  id: string
+  label: string
+  /** Agrupa bonos excluyentes (p. ej. "Proveedor elegido"); sólo uno por grupo y equipo. */
+  group?: string
+  effect: Effect
+}
+
+/** Bandera que el facilitador marca a mano para un equipo durante el reto. */
+export interface FacilitatorFlag {
+  flag: FlagId
+  label: string
+}
+
+/** Texto público que sólo aparece si el equipo que resuelve cumple una condición. */
+export interface Callback {
+  when: Condition
+  title?: string
+  text: string
+}
+
+/** Tabla pública (p. ej. comparativo de proveedores). */
+export interface ExhibitTable {
+  columns: string[]
+  rows: { label: string; cells: string[] }[]
+}
+
+/** Información privada: sólo se ve en el panel del facilitador o en la vista privada. */
+export interface SecretInfo {
+  title: string
+  body?: string
+  /** Ruta de una imagen en /public (p. ej. "/figuras/mensaje-01.svg"). */
+  image?: string
+  rules?: string[]
+  /** Tarjetas (una por equipo, en orden) — p. ej. objetivos secretos. */
+  cards?: { title: string; lines: string[] }[]
 }
 
 export interface Challenge {
   id: ChallengeId
+  /** Número visible en la guía del facilitador ("RETO 03"). */
+  code?: string
   title: string
+  /** Hora del día que se muestra en pantalla ("09:20"). */
+  clock?: string
   type: ChallengeType
+  /** Duración planeada en minutos (planeación del facilitador; no es el temporizador). */
+  minutes?: number
+  /** La actividad ocurre fuera de pantalla (presencial). */
+  inPerson?: boolean
+  /** Ambiente visual especial al proyectar. */
+  ambience?: 'crisis'
   /** Un reto puede pertenecer a varias categorías. */
   categories: CategoryId[]
   chapter: ChapterId
   narrative: string
+  /** Elementos de la situación (lista pública numerada / con letras). */
+  items?: string[]
+  itemStyle?: 'number' | 'letter' | 'bullet'
+  table?: ExhibitTable
   /** Instrucciones visibles para los participantes. */
   instructions?: string[]
+  /** Preguntas públicas que el facilitador revela cuando decide (botón "Mostrar preguntas"). */
+  followUp?: { title: string; items: string[] }
+  /** Mensaje público que cierra el reto después de resolverlo. */
+  takeaway?: string
+  /** Textos públicos condicionados a lo que hizo el equipo antes. */
+  callbacks?: Callback[]
+  /** Muestra el expediente de cada equipo (decisiones, eventos, indicadores). */
+  showDossier?: boolean
+  secret?: SecretInfo
+  facilitatorFlags?: FacilitatorFlag[]
+  bonuses?: Bonus[]
   /** Si existe, se muestra temporizador (segundos). */
   durationSec?: number
   turnMode?: TurnMode
@@ -157,6 +242,8 @@ export interface Challenge {
   conditions?: Condition
   facilitator: {
     notes: string
+    /** Respuesta o solución de referencia (privada). */
+    reference?: string[]
     debrief?: string[]
   }
 }
@@ -164,18 +251,35 @@ export interface Challenge {
 // ─── Eventos ──────────────────────────────────────────────────────────────
 export type EventTone = 'positive' | 'negative' | 'neutral' | 'crisis'
 
+/**
+ * - conditional: se dispara solo cuando se cumple `trigger`.
+ * - consequence: lo programa una decisión previa (`schedule`).
+ * - surprise:    sólo lo activa el facilitador.
+ */
+export type EventKind = 'conditional' | 'consequence' | 'surprise'
+
 export interface GameEvent {
   id: EventId
   title: string
+  kind: EventKind
   tone: EventTone
   narrative: string
+  /** Pregunta rápida para el equipo. */
+  question?: string
+  /** Mensaje final del evento. */
+  takeaway?: string
+  /** Efecto automático al aplicar el evento. */
   effect: Effect
+  /** Respuestas posibles (se suman al efecto automático). */
+  options?: ChallengeOption[]
   /** Si existe, el motor lo revisa al cerrar cada paso para cada equipo. */
   trigger?: Condition
   /** Por defecto un evento se dispara una sola vez por equipo. */
   repeatable?: boolean
   /** No se dispara antes de este paso (índice base 0). */
   minStep?: number
+  /** No se dispara después de este paso. */
+  maxStep?: number
   facilitatorNotes?: string
 }
 
@@ -194,6 +298,8 @@ export type AwardMetric =
   | { kind: 'globalIndex' }
   | { kind: 'balance' }
   | { kind: 'mostDecisions' }
+  /** Suma neta de cambios en indicadores obtenidos en ciertos retos (incluye bonos). */
+  | { kind: 'challengeGain'; challenges: ChallengeId[] }
 
 export interface AwardDef {
   id: string
@@ -220,7 +326,16 @@ export interface GameConfig {
   defaultTurnMode: TurnMode
   /** Duración objetivo en minutos (sólo informativo). */
   targetMinutes: number
+  /** Cómo ve el público los efectos: sin números, con flechas o con números. */
+  publicEffects: PublicEffects
+  closing: {
+    title: string
+    lines: string[]
+    finale: { title: string; lines: string[]; signoff: string }
+  }
 }
+
+export type PublicEffects = 'hidden' | 'qualitative' | 'numeric'
 
 /** Todo el contenido que el motor necesita, inyectado (facilita pruebas). */
 export interface GameContent {
@@ -228,6 +343,7 @@ export interface GameContent {
   indicators: IndicatorDef[]
   categories: CategoryDef[]
   chapters: ChapterDef[]
+  flags: FlagDef[]
   resources: ResourceDef[]
   challenges: Challenge[]
   events: GameEvent[]
@@ -294,8 +410,11 @@ export interface HistoryEntry {
   teamId: TeamId
   optionId?: string
   outcome?: OutcomeLevel
+  bonusId?: string
   before: IndicatorSnapshot
   after: IndicatorSnapshot
+  resourcesBefore?: Record<ResourceId, number>
+  resourcesAfter?: Record<ResourceId, number>
   flagsAdded: FlagId[]
   note?: string
 }
@@ -308,10 +427,18 @@ export interface TimerState {
   remainingSec: number
 }
 
-export type Screen = 'home' | 'setup' | 'dashboard' | 'challenge' | 'scoreboard' | 'final'
+export type Screen =
+  | 'home'
+  | 'setup'
+  | 'dashboard'
+  | 'challenge'
+  | 'scoreboard'
+  | 'final'
+  | 'closing'
+  | 'credits'
 
 export interface GameState {
-  version: 1
+  version: 2
   id: string
   createdAt: number
   updatedAt: number
@@ -335,4 +462,7 @@ export interface GameState {
   timer: TimerState
   paused: boolean
   soundOn: boolean
+  publicEffects: PublicEffects
+  /** Preguntas de seguimiento del reto actual visibles en pantalla. */
+  showFollowUp: boolean
 }

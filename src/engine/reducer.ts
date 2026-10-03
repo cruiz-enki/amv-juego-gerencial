@@ -7,6 +7,7 @@ import type {
   GameState,
   IndicatorId,
   OutcomeLevel,
+  PublicEffects,
   QueuedEvent,
   ResourceId,
   Screen,
@@ -31,7 +32,10 @@ export type GameAction = { now: number } & (
   | { type: 'COMPLETE_STEP' }
   | { type: 'SKIP_STEP' }
   | { type: 'FIRE_EVENT'; event: string; teamId: TeamId | 'all' }
-  | { type: 'APPLY_EVENT'; uid: string }
+  | { type: 'APPLY_EVENT'; uid: string; optionId?: string }
+  | { type: 'APPLY_BONUS'; teamId: TeamId; bonusId: string }
+  | { type: 'TOGGLE_FOLLOW_UP' }
+  | { type: 'SET_PUBLIC_EFFECTS'; value: PublicEffects }
   | { type: 'DISMISS_EVENT'; uid: string }
   | { type: 'ADJUST'; teamId: TeamId; indicator?: IndicatorId; resource?: ResourceId; delta: number }
   | { type: 'TOGGLE_FLAG'; teamId: TeamId; flag: string }
@@ -50,7 +54,7 @@ export type ActionInput = DistributiveOmit<GameAction, 'now'> & { now?: number }
 
 export function emptyState(now: number): GameState {
   return {
-    version: 1,
+    version: 2,
     id: `g${now.toString(36)}`,
     createdAt: now,
     updatedAt: now,
@@ -70,7 +74,16 @@ export function emptyState(now: number): GameState {
     timer: { durationSec: 0, startedAt: null, remainingSec: 0 },
     paused: false,
     soundOn: true,
+    publicEffects: 'qualitative',
+    showFollowUp: false,
   }
+}
+
+/** Bonos ya otorgados a un equipo en el paso actual. */
+export function bonusesUsed(state: GameState, teamId: TeamId): string[] {
+  return state.history
+    .filter((h) => h.step === state.stepIndex && h.teamId === teamId && h.bonusId)
+    .map((h) => h.bonusId as string)
 }
 
 export function remainingSeconds(state: GameState, now: number): number {
@@ -149,6 +162,7 @@ function queueEvents(state: GameState, content: GameContent): GameState {
     const ev = content.events.find((e) => {
       if (!e.trigger) return false
       if ((e.minStep ?? 0) > next.stepIndex) return false
+      if (e.maxStep !== undefined && e.maxStep < next.stepIndex) return false
       if (!e.repeatable && fired.includes(`${e.id}:${team.id}`)) return false
       if (queue.some((q) => q.event === e.id && q.teamId === team.id)) return false
       return evaluate(e.trigger, team, next)
@@ -179,6 +193,7 @@ function advance(state: GameState, content: GameContent, status: AgendaStep['sta
     activeTeamIndex: rotates ? (state.activeTeamIndex + 1) % state.teams.length : state.activeTeamIndex,
     resolutions: [],
     revealed: false,
+    showFollowUp: false,
     screen: 'dashboard',
   }
   next = queueEvents(next, content)
@@ -205,6 +220,7 @@ function transition(state: GameState, action: GameAction, content: GameContent):
         soundOn: state.soundOn,
         status: 'playing',
         screen: 'dashboard',
+        publicEffects: content.config.publicEffects,
         teams: createTeams(action.teams, content),
       }
       next.agenda = content.config.agenda.map((a, i) => ({
@@ -303,12 +319,16 @@ function transition(state: GameState, action: GameAction, content: GameContent):
       let next: GameState = { ...state, eventQueue: state.eventQueue.filter((q) => q.uid !== action.uid) }
       const ev = content.events.find((e) => e.id === queued.event)
       if (action.type === 'APPLY_EVENT' && ev) {
-        next = applyEffect(next, queued.teamId, ev.effect, content, {
-          kind: 'event',
+        const ctx = {
+          kind: 'event' as const,
           at: action.now,
           event: ev.id,
-          injectAt: state.screen === 'challenge' ? 'next' : 'current',
-        }).state
+          injectAt: state.screen === 'challenge' ? ('next' as const) : ('current' as const),
+        }
+        next = applyEffect(next, queued.teamId, ev.effect, content, ctx).state
+        // La respuesta elegida se suma al efecto automático del evento.
+        const option = action.optionId ? ev.options?.find((o) => o.id === action.optionId) : undefined
+        if (option) next = applyEffect(next, queued.teamId, option.effect, content, { ...ctx, optionId: option.id }).state
       }
       // Si el último evento cerraba la partida, terminarla ahora.
       if (next.stepIndex >= next.agenda.length && next.eventQueue.length === 0 && next.status === 'playing') {
@@ -316,6 +336,32 @@ function transition(state: GameState, action: GameAction, content: GameContent):
       }
       return next
     }
+
+    case 'APPLY_BONUS': {
+      const challenge = challengeById(content, currentStep(state)?.challenge)
+      const bonus = challenge?.bonuses?.find((b) => b.id === action.bonusId)
+      if (!challenge || !bonus) return state
+      if (!state.teams.some((t) => t.id === action.teamId)) return state
+      const used = bonusesUsed(state, action.teamId)
+      const blocked = used.some(
+        (id) => id === bonus.id || (bonus.group && challenge.bonuses?.find((b) => b.id === id)?.group === bonus.group),
+      )
+      if (blocked) return state
+      return applyEffect(state, action.teamId, bonus.effect, content, {
+        kind: 'challenge',
+        at: action.now,
+        challenge: challenge.id,
+        bonusId: bonus.id,
+        injectAt: 'next',
+        note: `Bono: ${bonus.label}`,
+      }).state
+    }
+
+    case 'TOGGLE_FOLLOW_UP':
+      return { ...state, showFollowUp: !state.showFollowUp }
+
+    case 'SET_PUBLIC_EFFECTS':
+      return { ...state, publicEffects: action.value }
 
     case 'ADJUST': {
       const team = state.teams.find((t) => t.id === action.teamId)

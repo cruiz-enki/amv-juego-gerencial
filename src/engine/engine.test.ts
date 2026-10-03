@@ -14,7 +14,10 @@ const content: GameContent = {
     agenda: [{ challenge: 'c1' }, { challenge: 'c2', turnMode: 'all-teams' }, { challenge: 'c3' }, { challenge: 'c4' }],
     defaultTurnMode: 'active-team',
     targetMinutes: 90,
+    publicEffects: 'qualitative',
+    closing: { title: '', lines: [], finale: { title: '', lines: [], signoff: '' } },
   },
+  flags: [{ id: 'presion', label: 'Presión' }],
   indicators: [
     { id: 'res', label: 'Resultados', icon: '', description: '', color: '', min: 0, max: 100, initial: 50, danger: 30 },
     { id: 'eq', label: 'Equipo', icon: '', description: '', color: '', min: 0, max: 100, initial: 50, danger: 30 },
@@ -52,7 +55,13 @@ const content: GameContent = {
       outcomes: {
         success: { effect: { indicators: { res: 5 } }, feedback: '' },
         fail: { effect: { indicators: { res: -5 } }, feedback: '' },
+        rigid: { tone: 'fail', effect: { indicators: { eq: -7 } } },
       },
+      bonuses: [
+        { id: 'deal', label: 'Acuerdo', effect: { indicators: { eq: 4 } } },
+        { id: 'pa', group: 'prov', label: 'A', effect: { schedule: [{ event: 'late', afterSteps: 0 }] } },
+        { id: 'pb', group: 'prov', label: 'B', effect: { indicators: { res: -5 } } },
+      ],
       facilitator: { notes: '' },
     },
     {
@@ -78,9 +87,19 @@ const content: GameContent = {
     },
   ],
   events: [
-    { id: 'low-team', title: 'Equipo bajo', tone: 'negative', narrative: '', trigger: { indicator: 'eq', op: '<', value: 40 }, effect: { indicators: { res: -10 } } },
-    { id: 'late', title: 'Consecuencia', tone: 'crisis', narrative: '', effect: { indicators: { eq: -5 } } },
-    { id: 'storm', title: 'Tormenta', tone: 'crisis', narrative: '', effect: { target: 'all', resources: { joker: -1 } } },
+    { id: 'low-team', kind: 'conditional', title: 'Equipo bajo', tone: 'negative', narrative: '', trigger: { indicator: 'eq', op: '<', value: 40 }, effect: { indicators: { res: -10 } } },
+    { id: 'late', kind: 'consequence', title: 'Consecuencia', tone: 'crisis', narrative: '', effect: { indicators: { eq: -5 } } },
+    { id: 'storm', kind: 'surprise', title: 'Tormenta', tone: 'crisis', narrative: '', effect: { target: 'all', resources: { joker: -1 } } },
+    {
+      id: 'choice',
+      kind: 'surprise',
+      title: 'Con respuesta',
+      tone: 'negative',
+      narrative: '',
+      effect: { indicators: { eq: -7 } },
+      options: [{ id: 'fix', label: 'Recuperar', effect: { indicators: { res: -2, eq: 3 } } }],
+    },
+    { id: 'windowed', kind: 'conditional', title: 'Ventana', tone: 'neutral', narrative: '', trigger: { indicator: 'res', op: '>', value: 0 }, minStep: 2, maxStep: 2, effect: {} },
   ],
   profiles: [
     { id: 'people', title: 'Personas', description: '', icon: '', match: { indicator: 'eq', op: '>=', value: 90 } },
@@ -175,6 +194,7 @@ describe('motor de juego', () => {
     s = run(s, { type: 'COMPLETE_STEP' })
     expect(resolvers(s, content).map((t) => t.id)).toEqual([team.id])
     s = run(s, { type: 'SKIP_STEP' })
+    s = run(s, ...s.eventQueue.map((q) => ({ type: 'DISMISS_EVENT' as const, uid: q.uid })))
     expect(s.status).toBe('finished')
     expect(s.screen).toBe('final')
   })
@@ -202,5 +222,43 @@ describe('motor de juego', () => {
     expect(evaluate({ chose: { challenge: 'c1', option: 'a' } }, t, s)).toBe(true)
     expect(evaluate({ not: { completed: 'c1' } }, t, s)).toBe(false)
     expect(evaluate({ any: [{ flag: 'x' }, { resource: 'joker', op: '==', value: 1 }] }, t, s)).toBe(true)
+  })
+
+  it('eventos con respuesta: suman efecto automático + opción', () => {
+    let s = run(start(), { type: 'FIRE_EVENT', event: 'choice', teamId: 't1' })
+    s = run(s, { type: 'APPLY_EVENT', uid: s.eventQueue[0].uid, optionId: 'fix' })
+    expect(s.teams[0].indicators).toEqual({ res: 48, eq: 46 })
+  })
+
+  it('bonos: una vez por equipo, excluyentes por grupo y programan mini eventos', () => {
+    let s = run(start(), { type: 'COMPLETE_STEP' })
+    s = run(s, ...s.eventQueue.map((q) => ({ type: 'DISMISS_EVENT' as const, uid: q.uid })))
+    s = run(s, { type: 'APPLY_BONUS', teamId: 't1', bonusId: 'deal' }, { type: 'APPLY_BONUS', teamId: 't1', bonusId: 'deal' })
+    expect(s.teams[0].indicators.eq).toBe(54)
+    s = run(s, { type: 'APPLY_BONUS', teamId: 't1', bonusId: 'pa' }, { type: 'APPLY_BONUS', teamId: 't1', bonusId: 'pb' })
+    expect(s.teams[0].indicators.res).toBe(50)
+    s = run(s, { type: 'RESOLVE', teamId: 't2', outcome: 'rigid' })
+    expect(s.teams[1].indicators.eq).toBe(43)
+    s = run(s, { type: 'COMPLETE_STEP' })
+    expect(s.eventQueue.map((q) => [q.event, q.teamId])).toContainEqual(['late', 't1'])
+  })
+
+  it('maxStep acota eventos condicionales y spread mide el equilibrio', () => {
+    let s = run(start(), { type: 'SKIP_STEP' })
+    expect(s.eventQueue.some((q) => q.event === 'windowed')).toBe(false)
+    s = run(s, { type: 'SKIP_STEP' })
+    expect(s.eventQueue.filter((q) => q.event === 'windowed')).toHaveLength(2)
+    const t = run(start(), { type: 'ADJUST', teamId: 't1', indicator: 'res', delta: 15 })
+    expect(evaluate({ spread: '<=', value: 15 }, t.teams[0], t)).toBe(true)
+    expect(evaluate({ spread: '<', value: 15 }, t.teams[0], t)).toBe(false)
+  })
+
+  it('reconocimientos por retos específicos sólo cuentan a quien los jugó', () => {
+    const c = { ...content, awards: [{ id: 'x', title: '', icon: '', description: '', metric: { kind: 'challengeGain' as const, challenges: ['c1'] } }] }
+    const r = createReducer(c)
+    let s = r(emptyState(0), { now: 1, type: 'START_GAME', teams: [{ name: 'A', color: '', icon: '' }, { name: 'B', color: '', icon: '' }] })
+    expect(computeAwards(s, c)[0].winners).toEqual([])
+    s = r(s, { now: 2, type: 'RESOLVE', teamId: 't1', optionId: 'b' })
+    expect(computeAwards(s, c)[0].winners.map((t) => t.id)).toEqual(['t1'])
   })
 })

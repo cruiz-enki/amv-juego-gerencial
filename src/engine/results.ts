@@ -45,14 +45,32 @@ function metricValue(award: AwardDef, team: TeamState, state: GameState, content
       return -imbalance(team, content.indicators)
     case 'mostDecisions':
       return state.history.filter((h) => h.teamId === team.id && h.kind === 'challenge').length
+    case 'challengeGain':
+      return challengeEntries(state, team.id, m.challenges).reduce(
+        (sum, h) => sum + Object.keys(h.after).reduce((s, k) => s + (h.after[k] - (h.before[k] ?? 0)), 0),
+        0,
+      )
   }
+}
+
+function challengeEntries(state: GameState, teamId: string, challenges: string[]) {
+  return state.history.filter(
+    (h) => h.teamId === teamId && h.kind === 'challenge' && h.challenge && challenges.includes(h.challenge),
+  )
 }
 
 /** Reconocimientos: gana quien tenga el valor más alto (empates comparten). */
 export function computeAwards(state: GameState, content: GameContent): AwardResult[] {
   if (state.teams.length === 0) return []
   return content.awards.map((award) => {
-    const scored = state.teams.map((t) => ({ t, v: metricValue(award, t, state, content) }))
+    const m = award.metric
+    // Un reconocimiento por retos específicos sólo compite entre quienes los jugaron.
+    const eligible =
+      m.kind === 'challengeGain'
+        ? state.teams.filter((t) => challengeEntries(state, t.id, m.challenges).length > 0)
+        : state.teams
+    if (eligible.length === 0) return { award, winners: [], value: 0 }
+    const scored = eligible.map((t) => ({ t, v: metricValue(award, t, state, content) }))
     const best = Math.max(...scored.map((s) => s.v))
     return {
       award,

@@ -46,6 +46,7 @@ export interface ApplyContext {
   event?: string
   optionId?: string
   outcome?: HistoryEntry['outcome']
+  bonusId?: string
   note?: string
   /** Dónde insertar un reto inyectado: antes del paso actual o después. */
   injectAt?: 'current' | 'next'
@@ -94,8 +95,11 @@ export function applyEffect(
       teamId: team.id,
       optionId: team.id === teamId ? ctx.optionId : undefined,
       outcome: team.id === teamId ? ctx.outcome : undefined,
+      bonusId: team.id === teamId ? ctx.bonusId : undefined,
       before: snapshot(team),
       after: snapshot(updated),
+      resourcesBefore: { ...team.resources },
+      resourcesAfter: { ...updated.resources },
       flagsAdded: updated.flags.filter((f) => !team.flags.includes(f)),
       note: ctx.note,
     })

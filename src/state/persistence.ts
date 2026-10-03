@@ -18,14 +18,15 @@ export interface GameStorage {
   subscribe(listener: (game: PersistedGame | null) => void): () => void
 }
 
-const KEY = 'punto-critico:partida:v1'
+// Cambiar la versión invalida partidas guardadas con un formato anterior.
+const KEY = 'punto-critico:partida:v2'
 
 function isValid(value: unknown): value is PersistedGame {
   if (!value || typeof value !== 'object') return false
   const { state, past } = value as Partial<PersistedGame>
   return (
     !!state &&
-    state.version === 1 &&
+    state.version === 2 &&
     Array.isArray(state.teams) &&
     Array.isArray(state.agenda) &&
     Array.isArray(state.history) &&

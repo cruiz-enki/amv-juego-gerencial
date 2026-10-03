@@ -48,5 +48,10 @@ export function evaluate(cond: Condition | undefined, team: TeamState, state: Ga
       (h) => h.teamId === team.id && h.kind === 'challenge' && h.challenge === cond.completed,
     )
   if ('stepAtLeast' in cond) return state.stepIndex >= cond.stepAtLeast
+  if ('spread' in cond) {
+    const values = Object.values(team.indicators)
+    const spread = values.length ? Math.max(...values) - Math.min(...values) : 0
+    return compare(spread, cond.spread, cond.value)
+  }
   return false
 }
