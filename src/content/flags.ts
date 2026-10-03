@@ -17,7 +17,8 @@ export const flags: FlagDef[] = [
   { id: 'sin_apoyo', label: 'Eliminaron el apoyo temporal', showInDossier: true },
   { id: 'sin_tecnologia', label: 'Eliminaron la actualización tecnológica', showInDossier: true },
   { id: 'promesa_sin_informacion', label: 'Prometieron algo sin tener la información', showInDossier: true },
-  { id: 'camino_lanzar', label: 'Decidieron lanzar ahora', showInDossier: true },
-  { id: 'camino_retrasar', label: 'Decidieron retrasar una semana', showInDossier: true },
-  { id: 'camino_piloto', label: 'Decidieron hacer un piloto limitado', showInDossier: true },
+  { id: 'lanzamiento_anticipado', label: 'Lanzaron antes de tener certeza', showInDossier: true },
+  { id: 'oportunidad_perdida', label: 'Sacrificaron la oportunidad por estabilidad', showInDossier: true },
+  { id: 'piloto_controlado', label: 'Probaron con un piloto controlado', showInDossier: true },
+  { id: 'problema_proveedor', label: 'Enfrentaron un problema con el proveedor' },
 ]

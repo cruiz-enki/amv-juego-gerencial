@@ -1,4 +1,5 @@
 import type { Challenge } from '../../engine/types'
+import { negotiationSecret } from '../negotiation'
 
 // Retos 06–09 · 11:20 a 13:20 — fuente: documento "Punto Crítico" (contenido v1).
 
@@ -22,15 +23,7 @@ export const middayChallenges: Challenge[] = [
       'No pueden simplemente regalar todo.',
       'Cada equipo tiene un objetivo secreto.',
     ],
-    secret: {
-      title: 'Objetivos secretos (una tarjeta por equipo, en orden)',
-      body: 'Tarjetas de ejemplo del documento. Faltan las tarjetas para los equipos 4 a 6 (por definir).',
-      cards: [
-        { title: 'Equipo 1', lines: ['Tienen: mucho presupuesto · poco personal · sin contacto con cliente.', 'Necesitan: 2 especialistas · contacto con cliente.'] },
-        { title: 'Equipo 2', lines: ['Tienen: poco presupuesto · mucho personal · información clave.', 'Necesitan: $30,000 · proveedor.'] },
-        { title: 'Equipo 3', lines: ['Tienen: acceso al cliente · poco tiempo · contacto con proveedor.', 'Necesitan: capacidad logística · información técnica.'] },
-      ],
-    },
+    secret: negotiationSecret,
     outcomes: {
       success: { label: 'Cumplen su objetivo', effect: { indicators: { resultados: 8, recursos: 5, liderazgo: 3 } } },
       partial: { label: 'Cumplen parcialmente', effect: { indicators: { resultados: 4 } } },
@@ -45,7 +38,7 @@ export const middayChallenges: Challenge[] = [
     ],
     facilitator: {
       notes:
-        'Entrega a cada equipo su tarjeta secreta. Observar quién pregunta, quién asume, quién cede demasiado, quién busca intereses y quién sólo discute posiciones. Califica a cada equipo y otorga la bonificación si aplica.',
+        'Entrega a cada equipo su tarjeta secreta (vista privada: sólo aparecen tantas tarjetas como equipos). Observar quién pregunta, quién asume, quién cede demasiado, quién busca intereses y quién sólo discute posiciones. Califica a cada equipo y otorga la bonificación si aplica.',
     },
   },
   {
@@ -146,6 +139,7 @@ export const middayChallenges: Challenge[] = [
     type: 'decision',
     categories: ['liderazgo', 'comunicacion'],
     chapter: 'mediodia',
+    turnMode: 'all-teams',
     minutes: 4,
     narrative:
       'Empieza a circular un rumor: “Van a despedir gente después de terminar este proyecto.” Tú sabes que Dirección está revisando costos, pero no existe todavía ninguna decisión confirmada. El equipo empieza a preguntar.',

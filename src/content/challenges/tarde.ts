@@ -28,13 +28,18 @@ export const afternoonChallenges: Challenge[] = [
       'Los demás deben delegarse, contenerse, posponerse o escalarse.',
       'Tienen 120 segundos.',
     ],
+    // Todos enfrentan "el proveedor confirma retraso": se marca problema_proveedor.
     outcomes: {
-      success: { label: 'Excelente', effect: { indicators: { liderazgo: 8, resultados: 6, recursos: 4 } } },
-      partial: { label: 'Parcial', effect: { indicators: { liderazgo: 3, resultados: 2 } } },
+      success: {
+        label: 'Excelente',
+        // balance v2: liderazgo 8 → 6, +3 reputación (contienen al cliente que amenaza cancelar)
+        effect: { indicators: { liderazgo: 6, resultados: 6, recursos: 4, reputacion: 3 }, setFlags: ['problema_proveedor'] },
+      },
+      partial: { label: 'Parcial', effect: { indicators: { liderazgo: 3, resultados: 2 }, setFlags: ['problema_proveedor'] } },
       fail: {
         label: 'Caótico',
         feedback: 'Intentaron resolver los cinco ellos mismos.',
-        effect: { indicators: { liderazgo: -6, recursos: -7, resultados: -4 } },
+        effect: { indicators: { liderazgo: -6, recursos: -7, resultados: -4 }, setFlags: ['problema_proveedor'] },
       },
     },
     takeaway: 'Gerenciar no es hacer todo. Es lograr que lo importante ocurra.',
@@ -50,6 +55,7 @@ export const afternoonChallenges: Challenge[] = [
     type: 'open',
     categories: ['equipos', 'liderazgo'],
     chapter: 'tarde',
+    turnMode: 'all-teams',
     minutes: 5,
     narrative:
       'Luis tiene excelente actitud, buena disposición, compromiso y relaciones positivas. Pero sus resultados están por debajo de lo esperado desde hace dos meses. ¿Qué haces?',
@@ -100,13 +106,14 @@ export const afternoonChallenges: Challenge[] = [
     inPerson: true,
     categories: ['negociacion', 'comunicacion'],
     chapter: 'tarde',
+    turnMode: 'all-teams',
     minutes: 6,
     durationSec: 180,
     narrative:
       'El cliente solicita 20% más alcance, misma fecha y mismo presupuesto. Y agrega: “Pensamos que por nuestra relación podrían apoyarnos.”',
     instructions: [
       'Tienen 3 minutos para preparar su respuesta.',
-      'El facilitador interpreta al cliente.',
+      'El facilitador interpreta al cliente con cada equipo (o un vocero por equipo responde en ronda).',
       'Pueden aceptar, rechazar, negociar alcance, modificar fecha, modificar costo, dividir por fases o pedir contraprestación.',
     ],
     outcomes: {
@@ -162,39 +169,57 @@ export const afternoonChallenges: Challenge[] = [
     code: '14',
     clock: '16:20',
     title: 'Decidir sin certeza',
-    type: 'tool',
+    type: 'decision',
     categories: ['decisiones', 'planeacion'],
     chapter: 'cierre',
     turnMode: 'all-teams',
     minutes: 6,
     durationSec: 360,
-    narrative: 'El proyecto está listo al 85%. Tienen tres caminos:',
-    itemStyle: 'letter',
-    items: [
-      'Lanzar ahora: 70% de probabilidad de funcionar correctamente; 30% de una falla visible para clientes.',
-      'Retrasar una semana: 95% de probabilidad de lanzamiento estable, pero se pierde una oportunidad comercial importante.',
-      'Piloto limitado: reduce la exposición al riesgo, pero no permite aprovechar toda la oportunidad actual.',
+    narrative: 'El proyecto está listo al 85%. Tienen tres caminos. ¿Qué hacen?',
+    // Resultado preconfigurado (no probabilístico) para la experiencia presencial.
+    options: [
+      {
+        id: 'a',
+        label: 'Lanzar ahora',
+        detail: '70% de probabilidad de funcionar bien · 30% de una falla visible para clientes.',
+        feedback:
+          'Salieron al mercado de inmediato: aparece una falla menor visible para algunos clientes, pero el lanzamiento sí ocurre. Ganaron velocidad, pero asumieron exposición. El riesgo no desapareció por haber decidido rápido.',
+        effect: { indicators: { resultados: 4, reputacion: -4, liderazgo: 1 }, setFlags: ['lanzamiento_anticipado'] },
+      },
+      {
+        id: 'b',
+        label: 'Retrasar una semana',
+        detail: '95% de lanzamiento estable, pero se pierde una oportunidad comercial importante.',
+        feedback: 'La estabilidad aumentó, pero tuvo un costo de oportunidad.',
+        effect: { indicators: { resultados: 3, reputacion: 1, recursos: -3 }, setFlags: ['oportunidad_perdida'] },
+      },
+      {
+        id: 'c',
+        label: 'Piloto limitado',
+        detail: 'Reduce la exposición al riesgo, pero no aprovecha toda la oportunidad actual.',
+        feedback: 'Redujeron exposición sin detener completamente el avance.',
+        effect: { indicators: { resultados: 4, liderazgo: 4, recursos: -2 }, setFlags: ['piloto_controlado'] },
+      },
     ],
-    instructions: ['¿Qué hacen?'],
     followUp: { title: 'Después de decidir', items: ['¿Qué riesgo están aceptando deliberadamente?'] },
-    outcomes: {
-      success: {
-        label: 'Riesgo y consecuencia claros',
+    // La calidad del argumento se califica aparte (bono excluyente por equipo).
+    bonuses: [
+      {
+        id: 'riesgo-claro',
+        group: 'argumento',
+        label: 'Identifican claramente riesgo y consecuencia',
         effect: { indicators: { liderazgo: 5, resultados: 4 } },
       },
-      fail: {
-        label: '“Creemos que va a salir bien”',
+      {
+        id: 'creemos-que-saldra-bien',
+        group: 'argumento',
+        label: 'Sólo “creemos que va a salir bien”',
         effect: { indicators: { liderazgo: -2 } },
       },
-    },
-    facilitatorFlags: [
-      { flag: 'camino_lanzar', label: 'Eligieron lanzar ahora' },
-      { flag: 'camino_retrasar', label: 'Eligieron retrasar una semana' },
-      { flag: 'camino_piloto', label: 'Eligieron piloto limitado' },
     ],
     facilitator: {
       notes:
-        'No hay respuesta correcta. Marca el camino elegido. El resultado de cada camino (preconfigurado, recomendado para evento presencial) está por definir.',
+        'Ninguna opción es la correcta. Cada equipo elige un camino (efecto preconfigurado) y, tras la pregunta “¿qué riesgo aceptan?”, califica su argumento con el bono correspondiente.',
     },
   },
   {

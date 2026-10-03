@@ -44,7 +44,7 @@ export const events: GameEvent[] = [
     kind: 'consequence',
     tone: 'negative',
     narrative: 'El proveedor A avisa que la entrega se retrasa.',
-    effect: { indicators: { resultados: -5 } },
+    effect: { indicators: { resultados: -5 }, setFlags: ['problema_proveedor'] },
     facilitatorNotes: 'Mini evento del reto 08 (eligieron proveedor A).',
   },
   {
@@ -62,7 +62,7 @@ export const events: GameEvent[] = [
     kind: 'consequence',
     tone: 'neutral',
     narrative: 'El proveedor C necesita acompañamiento adicional para cumplir.',
-    effect: { indicators: { recursos: -2, liderazgo: -1 } },
+    effect: { indicators: { recursos: -2, liderazgo: -1 }, setFlags: ['problema_proveedor'] },
     facilitatorNotes: 'Mini evento del reto 08 (eligieron proveedor C).',
   },
   {
@@ -98,6 +98,31 @@ export const events: GameEvent[] = [
     facilitatorNotes: 'Evento sorpresa 03: después del reto 10, si en el reto 01 ignoraron al cliente.',
   },
   {
+    id: 'la-promesa-regresa',
+    title: 'La promesa regresa',
+    kind: 'conditional',
+    tone: 'crisis',
+    narrative:
+      'Dirección confirma que sí habrá ajustes en la organización. Hace unas horas aseguraron al equipo: “Nadie va a perder su empleo.” Ahora tienen que enfrentar esa conversación.',
+    takeaway: 'Comunicar con tranquilidad no significa inventar certezas.',
+    trigger: { flag: 'promesa_sin_informacion' },
+    minStep: 10,
+    effect: { indicators: { liderazgo: -6, equipo: -5, reputacion: -4 } },
+    facilitatorNotes: 'Consecuencia de la opción A del reto 09. Aparece después del reto 10, una sola vez.',
+  },
+  {
+    id: 'la-senal-del-proveedor',
+    title: 'La señal de la mañana',
+    kind: 'conditional',
+    tone: 'negative',
+    narrative:
+      'El problema con el proveedor ya llegó. Esta señal apareció desde la mañana. No atender un riesgo no significa que desaparezca.',
+    trigger: { all: [{ flag: 'riesgo_proveedor' }, { flag: 'problema_proveedor' }] },
+    effect: { indicators: { resultados: -3 } },
+    facilitatorNotes:
+      'Si en el reto 01 ignoraron al proveedor, el primer problema de proveedor (reto 08 o reto 10) cuesta Resultados −3 adicional. Sólo una vez.',
+  },
+  {
     id: 'la-reputacion-habla',
     title: 'La reputación habla',
     kind: 'conditional',
@@ -105,10 +130,10 @@ export const events: GameEvent[] = [
     narrative:
       'Un cliente anterior recomienda su equipo con un nuevo prospecto. Su reputación les compra tiempo y confianza.',
     takeaway: 'La reputación también es un recurso.',
-    trigger: { indicator: 'reputacion', op: '>=', value: 75 },
+    trigger: { indicator: 'reputacion', op: '>=', value: 65 },
     minStep: 14,
     effect: { indicators: { resultados: 5, recursos: 3 } },
-    facilitatorNotes: 'Evento sorpresa 04: después del reto 14, si Reputación ≥ 75.',
+    facilitatorNotes: 'Evento sorpresa 04: después del reto 14, si Reputación ≥ 65.',
   },
   {
     id: 'la-factura-invisible',

@@ -33,7 +33,7 @@ export const morningChallenges: Challenge[] = [
       success: {
         label: 'Priorización con criterio',
         feedback: 'Existe priorización clara, delegación y criterio.',
-        effect: { indicators: { liderazgo: 6, resultados: 4, equipo: 3 } },
+        effect: { indicators: { liderazgo: 6, resultados: 4, equipo: 3, reputacion: 2 } }, // balance v2: +2 reputación
       },
       partial: {
         label: 'Casi todo en sus manos',
@@ -93,7 +93,7 @@ export const morningChallenges: Challenge[] = [
     outcomes: {
       success: {
         label: 'Reproducción muy similar',
-        effect: { indicators: { equipo: 6, liderazgo: 4, resultados: 3 } },
+        effect: { indicators: { equipo: 6, liderazgo: 2, resultados: 3 } }, // balance v2: liderazgo 4 → 2
       },
       partial: {
         label: 'Reproducción parcial',
@@ -117,6 +117,7 @@ export const morningChallenges: Challenge[] = [
     type: 'decision',
     categories: ['liderazgo', 'conflictos', 'equipos'],
     chapter: 'arranque',
+    turnMode: 'all-teams',
     minutes: 4,
     narrative:
       'Mariana es una de las personas con mejores resultados del equipo. Hoy, frente a todos, confrontó duramente a un compañero por un error. Su reclamo tenía fundamento. La forma en que lo hizo dejó al equipo incómodo y al compañero visiblemente molesto. ¿Qué haces?',
@@ -178,7 +179,8 @@ export const morningChallenges: Challenge[] = [
       '¿Qué hacen ustedes, qué delegan y qué eliminan?',
     ],
     outcomes: {
-      success: { label: 'Matriz sólida', effect: { indicators: { liderazgo: 5, recursos: 6, resultados: 4 } } },
+      // balance v2: liderazgo 5 → 3, +2 reputación
+      success: { label: 'Matriz sólida', effect: { indicators: { liderazgo: 3, recursos: 6, resultados: 4, reputacion: 2 } } },
       partial: { label: 'Matriz parcial', effect: { indicators: { recursos: 2, resultados: 2 } } },
       fail: { label: 'Sin criterio', effect: { indicators: { recursos: -5, liderazgo: -3 } } },
     },
