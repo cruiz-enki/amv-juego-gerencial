@@ -6,13 +6,18 @@ describe('contenido', () => {
     expect(validateContent(content)).toEqual([])
   })
 
-  it('cubre el mínimo de retos mock pedidos', () => {
-    const count = (cat: string) => content.challenges.filter((c) => c.categories.includes(cat)).length
-    expect(count('liderazgo')).toBeGreaterThanOrEqual(2)
-    expect(count('decisiones')).toBeGreaterThanOrEqual(2)
-    expect(count('equipos')).toBeGreaterThanOrEqual(1)
-    expect(count('negociacion')).toBeGreaterThanOrEqual(1)
-    expect(content.challenges.some((c) => c.type === 'timed')).toBe(true)
-    expect(content.events.length).toBeGreaterThanOrEqual(1)
+  it('la agenda tiene los 15 retos del documento en orden', () => {
+    const codes = content.config.agenda.map((a) => content.challenges.find((c) => c.id === a.challenge)?.code)
+    expect(codes).toEqual(['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15'])
+  })
+
+  it('suma ~90 minutos planeados', () => {
+    const minutes = content.challenges.reduce((s, c) => s + (c.minutes ?? 0), 0)
+    expect(minutes).toBeGreaterThanOrEqual(80)
+    expect(minutes).toBeLessThanOrEqual(95)
+  })
+
+  it('el último perfil es el respaldo sin condición', () => {
+    expect(content.profiles.at(-1)?.match).toBeUndefined()
   })
 })

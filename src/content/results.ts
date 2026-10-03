@@ -1,77 +1,94 @@
-import type { AwardDef, ManagerProfile } from '../engine/types'
+import type { AwardDef, Condition, ManagerProfile } from '../engine/types'
+
+const ALL = ['resultados', 'equipo', 'liderazgo', 'recursos', 'reputacion']
+const atLeast = (indicator: string, value: number): Condition => ({ indicator, op: '>=', value })
 
 /**
- * Perfiles gerenciales (provisionales). Se asigna el PRIMERO cuya condición
- * se cumpla, así que el orden importa. El último no tiene condición: respaldo.
+ * Perfiles finales — fuente: documento "Punto Crítico". Se asigna el PRIMERO que
+ * cumpla su condición, así que van del más específico al más general.
  */
 export const profiles: ManagerProfile[] = [
   {
-    id: 'arquitecto',
-    title: 'Arquitecto del equilibrio',
-    icon: '🏛️',
-    description: 'Sostuvo resultados sin sacrificar personas, recursos ni confianza.',
-    match: {
-      all: ['resultados', 'equipo', 'liderazgo', 'recursos', 'reputacion'].map((id) => ({
-        indicator: id,
-        op: '>=' as const,
-        value: 60,
-      })),
-    },
+    id: 'equilibrado',
+    title: 'Equipo equilibrado',
+    icon: '⚖️',
+    description:
+      'Lograron equilibrar resultados, personas y recursos. Su siguiente reto es decidir en qué dimensión quieren convertirse en extraordinarios.',
+    match: { all: [...ALL.map((id) => atLeast(id, 60)), { spread: '<=', value: 20 }] },
   },
   {
-    id: 'motor',
-    title: 'Motor de resultados',
+    id: 'ejecutor',
+    title: 'Ejecutor',
     icon: '🚀',
-    description: 'Empujó la entrega a toda costa. El reto pendiente: el costo humano.',
-    match: { all: [{ indicator: 'resultados', op: '>=', value: 65 }, { indicator: 'equipo', op: '<', value: 50 }] },
-  },
-  {
-    id: 'personas',
-    title: 'Líder de personas',
-    icon: '🌱',
-    description: 'Cuidó al equipo y ganó credibilidad desde la confianza.',
-    match: { all: [{ indicator: 'equipo', op: '>=', value: 65 }, { indicator: 'liderazgo', op: '>=', value: 55 }] },
+    description:
+      'Logran que las cosas ocurran. Su fortaleza es la orientación a resultados. Su reto es asegurar que la velocidad no genere costos invisibles.',
+    match: atLeast('resultados', 80),
   },
   {
     id: 'estratega',
-    title: 'Estratega confiable',
+    title: 'Estratega',
     icon: '♟️',
-    description: 'Combinó avance real con una reputación sólida frente a terceros.',
-    match: { all: [{ indicator: 'resultados', op: '>=', value: 60 }, { indicator: 'reputacion', op: '>=', value: 60 }] },
+    description:
+      'Su fortaleza está en analizar, priorizar y utilizar los recursos con intención. Su riesgo es convertir cada problema en un cálculo y perder de vista a las personas.',
+    match: { all: [atLeast('resultados', 70), atLeast('recursos', 65)] },
   },
   {
-    id: 'guardian',
-    title: 'Guardián de recursos',
-    icon: '🛡️',
-    description: 'Cuidó cada peso y cada hora. Podría arriesgar más.',
-    match: { indicator: 'recursos', op: '>=', value: 65 },
+    id: 'constructor',
+    title: 'Constructor de equipos',
+    icon: '🌱',
+    description:
+      'Generan confianza y desarrollan capacidad colectiva. Su siguiente reto es mantener esa fortaleza sin evitar decisiones difíciles.',
+    match: { all: [atLeast('equipo', 75), atLeast('liderazgo', 65)] },
   },
   {
-    id: 'reconstruccion',
-    title: 'Comité en reconstrucción',
-    icon: '🔧',
-    description: 'Algún frente quedó en zona crítica. Hay aprendizaje valioso en lo que no salió.',
-    match: {
-      any: ['resultados', 'equipo', 'liderazgo', 'recursos', 'reputacion'].map((id) => ({
-        indicator: id,
-        op: '<' as const,
-        value: 30,
-      })),
-    },
+    id: 'negociador',
+    title: 'Negociador',
+    icon: '🤝',
+    description:
+      'Saben construir acuerdos y proteger relaciones. Su reto es no confundir consenso con evitar decisiones.',
+    match: { all: [atLeast('reputacion', 75), atLeast('recursos', 60)] },
   },
   {
-    id: 'en-desarrollo',
-    title: 'Comité en desarrollo',
+    id: 'bombero',
+    title: 'Bombero profesional',
+    icon: '🧯',
+    description:
+      'Son excelentes reaccionando bajo presión. Salvan situaciones difíciles, aunque demasiadas cosas terminan dependiendo de su capacidad para apagar incendios.',
+    match: { all: [atLeast('resultados', 60), { indicator: 'recursos', op: '<=', value: 45 }] },
+  },
+  {
+    // Respaldo técnico (no viene en el documento): para equipos que no cumplen ningún perfil.
+    id: 'en-construccion',
+    title: 'Estilo en construcción',
     icon: '🧩',
-    description: 'Decisiones razonables, sin un sello distintivo todavía.',
+    description: 'Su estilo gerencial todavía no se inclina por una dimensión dominante.',
   },
 ]
 
 export const awards: AwardDef[] = [
-  { id: 'comite-del-dia', title: 'Comité del día', icon: '🏆', description: 'Mayor índice global.', metric: { kind: 'globalIndex' } },
-  { id: 'equilibrio', title: 'Mejor equilibrio', icon: '⚖️', description: 'Indicadores más parejos.', metric: { kind: 'balance' } },
-  { id: 'resultados', title: 'Entrega impecable', icon: '📈', description: 'Más Resultados.', metric: { kind: 'highest', indicator: 'resultados' } },
-  { id: 'equipo', title: 'Corazón del equipo', icon: '🤝', description: 'Más Equipo.', metric: { kind: 'highest', indicator: 'equipo' } },
-  { id: 'liderazgo', title: 'Brújula del día', icon: '🧭', description: 'Más Liderazgo.', metric: { kind: 'highest', indicator: 'liderazgo' } },
-  { id: 'reputacion', title: 'Palabra de honor', icon: '⭐', description: 'Más Reputación.', metric: { kind: 'highest', indicator: 'reputacion' } },
+  { id: 'liderazgo', title: 'Mejor liderazgo', icon: '🧭', description: 'Mayor indicador de Liderazgo.', metric: { kind: 'highest', indicator: 'liderazgo' } },
+  {
+    id: 'estrategia',
+    title: 'Mejor estrategia',
+    icon: '♟️',
+    description: 'Mejor desempeño en los retos 05, 08, 13 y 14.',
+    metric: { kind: 'challengeGain', challenges: ['el-recorte', 'tres-proveedores', 'mapa-del-terreno', 'decidir-sin-certeza'] },
+  },
+  {
+    id: 'negociacion',
+    title: 'Mejor negociación',
+    icon: '🤝',
+    description: 'Mejor resultado acumulado en los retos 06 y 12.',
+    metric: { kind: 'challengeGain', challenges: ['nadie-tiene-todo', 'cliente-quiere-todo'] },
+  },
+  { id: 'equipo', title: 'Mejor equipo', icon: '🌱', description: 'Mayor indicador de Equipo.', metric: { kind: 'highest', indicator: 'equipo' } },
+  {
+    id: 'crisis',
+    title: 'Mejor manejo de crisis',
+    icon: '🚨',
+    description: 'Resultado más alto en el reto 10.',
+    metric: { kind: 'challengeGain', challenges: ['punto-critico'] },
+  },
+  { id: 'recursos', title: 'Mejor uso de recursos', icon: '💰', description: 'Mayor indicador de Recursos.', metric: { kind: 'highest', indicator: 'recursos' } },
+  { id: 'reputacion', title: 'Mayor reputación', icon: '⭐', description: 'Mayor indicador de Reputación.', metric: { kind: 'highest', indicator: 'reputacion' } },
 ]

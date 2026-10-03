@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Figura PROVISIONAL para el reto 02. Reemplazar por la definitiva. -->
+  <rect width="400" height="400" fill="#ffffff"/>
+  <g fill="none" stroke="#111827" stroke-width="6" stroke-linejoin="round">
+    <rect x="90" y="190" width="220" height="140"/>
+    <polygon points="90,190 200,90 310,190"/>
+    <circle cx="200" cy="150" r="22"/>
+    <line x1="200" y1="190" x2="200" y2="330"/>
+    <rect x="120" y="230" width="50" height="50"/>
+    <polygon points="250,330 250,260 290,295"/>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
-import { injectedChallenges } from './inyectados'
-import { morningChallenges } from './manana'
+import { morningChallenges } from './arranque'
+import { middayChallenges } from './mediodia'
 import { afternoonChallenges } from './tarde'
 
-export const challenges = [...morningChallenges, ...afternoonChallenges, ...injectedChallenges]
+export const challenges = [...morningChallenges, ...middayChallenges, ...afternoonChallenges]

@@ -1,84 +1,125 @@
 import type { GameEvent } from '../engine/types'
 
 /**
- * Eventos: aparecen como modal sobre el tablero.
- * - Con `trigger`: el motor los revisa al iniciar cada paso (condicionales).
- * - Sin `trigger`: sólo por consecuencia programada o porque el facilitador los activa.
+ * Eventos — fuente: documento "Punto Crítico" (contenido v1).
+ * - conditional: el motor revisa `trigger` al iniciar cada paso (minStep/maxStep acotan cuándo).
+ * - consequence: lo programa una decisión previa (`schedule` en el efecto de una opción o bono).
+ * - surprise:    sólo lo activa el facilitador.
+ *
+ * Índices de paso: el reto 01 es el paso 0, el reto 05 el paso 4, etc.
  */
 export const events: GameEvent[] = [
-  // ── Condicionales ────────────────────────────────────────────────────────
   {
-    id: 'renuncia',
-    title: 'Alguien está pensando irse',
-    tone: 'negative',
-    narrative: 'El clima del equipo pasó factura: una persona clave pidió hablar contigo en privado.',
-    trigger: { indicator: 'equipo', op: '<', value: 40 },
-    minStep: 2,
-    effect: { indicators: { equipo: -2 }, injectChallenge: 'renuncia-clave' },
-    facilitatorNotes: 'Inserta el reto "Una renuncia sobre la mesa" para este equipo.',
+    id: 'todo-urge',
+    title: 'Todo urge',
+    kind: 'conditional',
+    tone: 'crisis',
+    narrative: 'Tres personas diferentes acaban de decir: “Esto urge.” No todo puede ser prioridad.',
+    question: '¿Qué criterio usarán para decidir qué realmente requiere atención inmediata?',
+    trigger: { indicator: 'recursos', op: '<', value: 45 },
+    // Sólo justo después del reto 04.
+    minStep: 4,
+    maxStep: 4,
+    effect: { indicators: { recursos: -4 } },
+    options: [
+      { id: 'solida', label: 'Respuesta sólida', effect: { indicators: { liderazgo: 3 } } },
+      { id: 'sin-criterio', label: 'Sin criterio claro', effect: {} },
+    ],
+    facilitatorNotes: 'Evento sorpresa 01: aparece después del reto 04 si Recursos < 45.',
   },
   {
-    id: 'cliente-renegocia',
-    title: 'El cliente abre la puerta',
-    tone: 'positive',
-    narrative: 'Su reputación les precede: el cliente acepta renegociar las condiciones de entrega a su favor.',
-    trigger: { indicator: 'reputacion', op: '>', value: 75 },
-    effect: { indicators: { resultados: 6, recursos: 4 } },
-  },
-  {
-    id: 'desgaste',
-    title: 'Desgaste acumulado',
-    tone: 'negative',
-    narrative: 'Las horas extra se notan: errores pequeños, respuestas cortantes, dos personas con dolor de cabeza.',
-    trigger: { all: [{ flag: 'sobrecarga' }, { indicator: 'equipo', op: '<', value: 55 }] },
-    minStep: 3,
-    effect: { indicators: { equipo: -6, resultados: -4 }, clearFlags: ['sobrecarga'] },
-  },
-  // ── Consecuencias diferidas (programadas por decisiones) ────────────────
-  {
-    id: 'clima-tenso',
-    title: 'El precedente pesa',
+    id: 'se-contagia-el-comportamiento',
+    title: 'Se contagia el comportamiento',
+    kind: 'consequence',
     tone: 'negative',
     narrative:
-      'Otra persona del equipo levantó la voz en una reunión. Cuando se le pidió calma, respondió: "Si a él se le permite…".',
-    effect: { indicators: { equipo: -6, liderazgo: -4, reputacion: -3 }, setFlags: ['clima-tenso'] },
-    facilitatorNotes: 'Consecuencia de ignorar el incidente en "El talento difícil".',
+      'El problema no desapareció. Otro integrante del equipo acaba de responder agresivamente: “Si Mariana puede hacerlo, ¿por qué yo no?”',
+    takeaway: 'Lo que toleras también comunica.',
+    effect: { indicators: { equipo: -7, liderazgo: -5 } },
+    facilitatorNotes: 'Consecuencia diferida A: la programa la opción A del reto 03 (talento sin límites).',
   },
   {
-    id: 'cliente-descubre',
-    title: 'El cliente lo descubrió',
-    tone: 'crisis',
-    narrative: 'El cliente se enteró de la caída por un tercero y pregunta por qué nadie le avisó.',
-    effect: { indicators: { reputacion: -12, liderazgo: -4 } },
-    facilitatorNotes: 'Consecuencia de ocultar la falla en "Crisis: la plataforma cae".',
+    id: 'proveedor-a-retraso',
+    title: 'La entrega se retrasa',
+    kind: 'consequence',
+    tone: 'negative',
+    narrative: 'El proveedor A avisa que la entrega se retrasa.',
+    effect: { indicators: { resultados: -5 } },
+    facilitatorNotes: 'Mini evento del reto 08 (eligieron proveedor A).',
   },
-  // ── Sorpresas manuales (el facilitador decide cuándo) ───────────────────
   {
-    id: 'auditoria',
-    title: 'Auditoría sorpresa',
+    id: 'proveedor-b-costo',
+    title: 'Dirección cuestiona el costo',
+    kind: 'consequence',
+    tone: 'negative',
+    narrative: 'Dirección cuestiona el costo del proveedor B.',
+    effect: { indicators: { recursos: -5 } },
+    facilitatorNotes: 'Mini evento del reto 08 (eligieron proveedor B).',
+  },
+  {
+    id: 'proveedor-c-acompanamiento',
+    title: 'Necesita acompañamiento adicional',
+    kind: 'consequence',
     tone: 'neutral',
-    narrative: 'Contraloría llega sin aviso a revisar gastos del proyecto. Todos los comités pierden tiempo atendiendo.',
-    effect: { target: 'all', indicators: { recursos: -5 } },
+    narrative: 'El proveedor C necesita acompañamiento adicional para cumplir.',
+    effect: { indicators: { recursos: -2, liderazgo: -1 } },
+    facilitatorNotes: 'Mini evento del reto 08 (eligieron proveedor C).',
   },
   {
-    id: 'apagon',
-    title: 'Apagón en el piso',
+    id: 'la-persona-clave',
+    title: 'La persona clave',
+    kind: 'conditional',
+    tone: 'negative',
+    narrative:
+      '¿Recuerdan a la persona que pidió hablar con ustedes a las 08:00? Acaba de comunicar que está considerando dejar el proyecto.',
+    question: '¿Gastan 2 puntos de Recursos para abrir una conversación de recuperación?',
+    trigger: { flag: 'persona_ignorada' },
+    minStep: 10,
+    effect: { indicators: { equipo: -7, resultados: -4 } },
+    options: [
+      {
+        id: 'recuperar',
+        label: 'Abrir conversación de recuperación (cuesta Recursos)',
+        effect: { indicators: { recursos: -2, equipo: 3, liderazgo: 3 } },
+      },
+      { id: 'no', label: 'No abrir la conversación', effect: {} },
+    ],
+    facilitatorNotes: 'Evento sorpresa 02: después del reto 10, si en el reto 01 ignoraron al colaborador.',
+  },
+  {
+    id: 'el-cliente-no-olvido',
+    title: 'El cliente no olvidó',
+    kind: 'conditional',
     tone: 'crisis',
-    narrative: 'Se va la luz durante 40 minutos. Nada de computadoras, nada de internet.',
-    effect: { target: 'all', indicators: { resultados: -4 } },
+    narrative: 'El cliente que solicitó atención esta mañana escala el problema con Dirección.',
+    trigger: { flag: 'cliente_ignorado' },
+    minStep: 10,
+    effect: { indicators: { reputacion: -8, resultados: -3 } },
+    facilitatorNotes: 'Evento sorpresa 03: después del reto 10, si en el reto 01 ignoraron al cliente.',
   },
   {
-    id: 'reconocimiento',
-    title: 'Reconocimiento público',
+    id: 'la-reputacion-habla',
+    title: 'La reputación habla',
+    kind: 'conditional',
     tone: 'positive',
-    narrative: 'La dirección menciona al comité como ejemplo en el canal general de la empresa.',
-    effect: { indicators: { liderazgo: 4, equipo: 3 } },
+    narrative:
+      'Un cliente anterior recomienda su equipo con un nuevo prospecto. Su reputación les compra tiempo y confianza.',
+    takeaway: 'La reputación también es un recurso.',
+    trigger: { indicator: 'reputacion', op: '>=', value: 75 },
+    minStep: 14,
+    effect: { indicators: { resultados: 5, recursos: 3 } },
+    facilitatorNotes: 'Evento sorpresa 04: después del reto 14, si Reputación ≥ 75.',
   },
   {
-    id: 'mentor',
-    title: 'Llega un mentor',
-    tone: 'positive',
-    narrative: 'Un directivo con experiencia ofrece media hora de asesoría.',
-    effect: { resources: { comodin: 1 }, indicators: { liderazgo: 2 } },
+    id: 'la-factura-invisible',
+    title: 'La factura invisible',
+    kind: 'conditional',
+    tone: 'negative',
+    narrative: 'Los resultados continúan. Pero empiezan a aparecer errores, ausencias, fricción y retrabajo.',
+    takeaway: 'El costo de descuidar al equipo rara vez aparece inmediatamente.',
+    trigger: { indicator: 'equipo', op: '<=', value: 35 },
+    minStep: 14,
+    effect: { indicators: { resultados: -6, recursos: -5 } },
+    facilitatorNotes: 'Evento sorpresa 05: después del reto 14, si Equipo ≤ 35.',
   },
 ]

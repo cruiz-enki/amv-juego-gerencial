@@ -1,12 +1,7 @@
 import type { ResourceDef } from '../engine/types'
 
-/** Recursos contables por equipo (fichas). Distintos del indicador "Recursos". */
-export const resources: ResourceDef[] = [
-  {
-    id: 'comodin',
-    label: 'Comodín de asesoría',
-    icon: '🃏',
-    initial: 1,
-    description: 'Permite pedir una pista al facilitador durante un reto.',
-  },
-]
+/**
+ * Fichas contables por equipo (distintas del indicador "Recursos").
+ * El contenido v1 no usa fichas; el motor las soporta si se necesitan después.
+ */
+export const resources: ResourceDef[] = []
