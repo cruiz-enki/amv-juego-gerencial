@@ -2,7 +2,7 @@ import { resolutionFor } from '../engine/selectors'
 import type { Challenge, TeamState } from '../engine/types'
 import { OPTION_LETTERS } from '../lib/labels'
 import { useGame } from '../state/useGame'
-import { EffectList } from './EffectList'
+import { PublicEffects } from './PublicEffects'
 
 /** Alternativas de un reto de decisión para UN equipo que responde. */
 export function DecisionOptions({ challenge, team }: { challenge: Challenge; team: TeamState }) {
@@ -10,6 +10,7 @@ export function DecisionOptions({ challenge, team }: { challenge: Challenge; tea
   const resolution = resolutionFor(state, team.id)
   const chosen = resolution?.optionId
   const entry = state.history.find((h) => h.id === resolution?.historyId)
+  const feedback = challenge.options?.find((o) => o.id === chosen)?.feedback
 
   return (
     <div className="grid gap-3">
@@ -43,12 +44,10 @@ export function DecisionOptions({ challenge, team }: { challenge: Challenge; tea
           </button>
         )
       })}
-      {chosen && state.revealed && (
+      {chosen && state.revealed && (feedback || state.publicEffects !== 'hidden') && (
         <div className="animate-rise rounded-2xl border border-accent/40 bg-accent/5 p-5">
-          <p className="mb-3 text-xl leading-relaxed text-pretty">
-            {challenge.options?.find((o) => o.id === chosen)?.feedback}
-          </p>
-          <EffectList entry={entry} />
+          {feedback && <p className="mb-3 text-xl leading-relaxed text-pretty">{feedback}</p>}
+          <PublicEffects entry={entry} />
         </div>
       )}
     </div>

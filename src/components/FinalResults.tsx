@@ -1,5 +1,5 @@
 import { challengeById } from '../engine/selectors'
-import { computeAwards, ranking } from '../engine/results'
+import { computeAwards, summarizeTeam } from '../engine/results'
 import { useGame } from '../state/useGame'
 import { IndicatorBar } from './IndicatorBar'
 import { TeamBadge } from './TeamBadge'
@@ -7,8 +7,9 @@ import { Panel } from './ui/Panel'
 
 export function FinalResults() {
   const { state, content } = useGame()
-  const ranked = ranking(state, content)
-  const awards = computeAwards(state, content)
+  // Sin ranking: los equipos aparecen en su orden; lo que importa es su perfil.
+  const ranked = state.teams.map((t) => summarizeTeam(t, state, content))
+  const awards = computeAwards(state, content).filter((a) => a.winners.length > 0)
 
   return (
     <div className="grid gap-8">
@@ -21,14 +22,8 @@ export function FinalResults() {
           return (
             <Panel key={s.team.id} className="animate-rise p-6" style={{ animationDelay: `${i * 120}ms` }}>
               <div className="mb-4 flex items-center gap-4">
-                <span className="font-display text-4xl font-bold text-faint">{i + 1}</span>
                 <TeamBadge team={s.team} size="lg" />
-                <div className="min-w-0">
-                  <h3 className="truncate font-display text-3xl font-bold">{s.team.name}</h3>
-                  <p className="text-muted">
-                    Índice global <b className="font-display text-xl text-accent">{s.globalIndex}</b>
-                  </p>
-                </div>
+                <h3 className="min-w-0 truncate font-display text-3xl font-bold">{s.team.name}</h3>
               </div>
               {s.profile && (
                 <div className="mb-4 rounded-2xl border border-accent/30 bg-accent/5 p-4">
@@ -69,6 +64,17 @@ export function FinalResults() {
         })}
       </section>
 
+      <section className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-muted">
+        {content.indicators.map((d) => (
+          <p key={d.id}>
+            <b style={{ color: d.color }}>
+              {d.icon} {d.label}:
+            </b>{' '}
+            {d.description}
+          </p>
+        ))}
+      </section>
+
       <section>
         <h2 className="mb-4 font-display text-3xl font-bold">Reconocimientos</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -86,7 +92,7 @@ export function FinalResults() {
                       <TeamBadge team={w} size="sm" /> {w.name}
                     </span>
                   ))}
-                  {award.metric.kind !== 'balance' && <span className="text-muted">({value})</span>}
+                  {award.metric.kind === 'highest' && <span className="text-muted">({value})</span>}
                 </p>
               </div>
             </Panel>

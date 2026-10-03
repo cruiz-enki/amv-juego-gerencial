@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { IndicatorDef } from '../engine/types'
+import { arrows } from '../lib/labels'
+import { useGame } from '../state/useGame'
 
 interface Props {
   def: IndicatorDef
@@ -10,6 +12,7 @@ interface Props {
 
 /** Barra de un indicador. Cuando el valor cambia, muestra el delta flotando. */
 export function IndicatorBar({ def, value, size = 'md', showLabel = true }: Props) {
+  const { state } = useGame()
   const prev = useRef(value)
   const [flash, setFlash] = useState<{ delta: number; key: number } | null>(null)
 
@@ -50,8 +53,7 @@ export function IndicatorBar({ def, value, size = 'md', showLabel = true }: Prop
           key={flash.key}
           className={`pointer-events-none absolute -top-1 right-8 animate-flash font-display text-lg font-bold ${flash.delta > 0 ? 'text-success' : 'text-danger'}`}
         >
-          {flash.delta > 0 ? '+' : ''}
-          {flash.delta}
+          {state.publicEffects === 'numeric' ? `${flash.delta > 0 ? '+' : ''}${flash.delta}` : arrows(flash.delta)}
         </span>
       )}
     </div>

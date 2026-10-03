@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { toneMeta } from '../../lib/labels'
+import { eventKindLabel, toneMeta } from '../../lib/labels'
 import { useGame } from '../../state/useGame'
 import { Button } from '../ui/Button'
 import { Section } from './Section'
@@ -37,8 +37,7 @@ export function EventControls() {
           <select value={eventId} onChange={(e) => setEventId(e.target.value)} className="rounded-lg border border-line-strong bg-deep px-2 py-2 text-text">
             {content.events.map((ev) => (
               <option key={ev.id} value={ev.id}>
-                {toneMeta[ev.tone].icon} {ev.title}
-                {ev.trigger ? ' (condicional)' : ''}
+                {toneMeta[ev.tone].icon} {ev.title} · {eventKindLabel[ev.kind]}
               </option>
             ))}
           </select>

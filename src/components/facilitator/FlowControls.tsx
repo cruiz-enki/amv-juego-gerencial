@@ -1,4 +1,6 @@
 import { currentStep } from '../../engine/selectors'
+import type { PublicEffects } from '../../engine/types'
+import { publicEffectsLabel } from '../../lib/labels'
 import { useGame } from '../../state/useGame'
 import { Button } from '../ui/Button'
 import { Section } from './Section'
@@ -40,6 +42,24 @@ export function FlowControls() {
         <Button size="sm" onClick={() => dispatch({ type: 'GO', screen: state.status === 'finished' ? 'final' : 'challenge' })} disabled={!step && !finished}>
           {finished ? '🏁 Resultados' : '🎬 Ver reto'}
         </Button>
+        {finished && (
+          <>
+            <Button size="sm" onClick={() => dispatch({ type: 'GO', screen: 'closing' })}>🎖️ Misión completada</Button>
+            <Button size="sm" onClick={() => dispatch({ type: 'GO', screen: 'credits' })}>🎓 Pantalla final</Button>
+          </>
+        )}
+      </div>
+      <div className="mt-3 flex items-center gap-2 text-sm">
+        <span className="text-muted">Efectos en pantalla:</span>
+        {(Object.keys(publicEffectsLabel) as PublicEffects[]).map((mode) => (
+          <button
+            key={mode}
+            onClick={() => dispatch({ type: 'SET_PUBLIC_EFFECTS', value: mode })}
+            className={`rounded-lg border px-2 py-1 ${state.publicEffects === mode ? 'border-accent bg-accent/10 text-text' : 'border-line text-muted'}`}
+          >
+            {publicEffectsLabel[mode]}
+          </button>
+        ))}
       </div>
     </Section>
   )

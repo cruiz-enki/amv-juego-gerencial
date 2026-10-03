@@ -67,7 +67,7 @@ function StepNode({ step, current }: { step: AgendaStep; current: boolean }) {
   const challenge = challengeById(content, step.challenge)
   const meta = challenge ? challengeTypeMeta[challenge.type] : undefined
   const team = state.teams.find((t) => t.id === step.teamId)
-  const title = `${challenge?.title ?? step.challenge}${step.injected ? ' (inyectado)' : ''}`
+  const title = `${challenge?.code ? `${challenge.code} · ` : ''}${challenge?.clock ? `${challenge.clock} ` : ''}${challenge?.title ?? step.challenge}${step.injected ? ' (inyectado)' : ''}`
   const base = 'relative grid size-9 place-items-center rounded-xl border text-base transition'
   const style =
     step.status === 'done'

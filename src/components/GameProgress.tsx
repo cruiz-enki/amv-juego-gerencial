@@ -12,7 +12,7 @@ export function GameProgress() {
         <p className="truncate font-display text-lg font-bold">
           {chapter ? (
             <>
-              <span className="text-accent">{chapter.marker}</span> · {chapter.label}
+              <span className="text-accent">{challenge?.clock ?? chapter.marker}</span> · {chapter.label}
             </>
           ) : (
             'Fin del día'

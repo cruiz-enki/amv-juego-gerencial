@@ -5,10 +5,13 @@ import { FacilitatorDrawer } from './components/facilitator/FacilitatorDrawer'
 import { PauseOverlay } from './components/PauseOverlay'
 import { TopBar } from './components/TopBar'
 import { ChallengeScreen } from './screens/ChallengeScreen'
+import { ClosingScreen } from './screens/ClosingScreen'
+import { CreditsScreen } from './screens/CreditsScreen'
 import { DashboardScreen } from './screens/DashboardScreen'
 import { FacilitatorWindow } from './screens/FacilitatorWindow'
 import { FinalScreen } from './screens/FinalScreen'
 import { HomeScreen } from './screens/HomeScreen'
+import { PrivateView } from './screens/PrivateView'
 import { ScoreboardScreen } from './screens/ScoreboardScreen'
 import { SetupScreen } from './screens/SetupScreen'
 import { useGame } from './state/useGame'
@@ -25,7 +28,9 @@ function useHash() {
 
 export default function App() {
   const hash = useHash()
-  return hash === '#/facilitador' ? <FacilitatorWindow /> : <ProjectorApp />
+  if (hash === '#/facilitador') return <FacilitatorWindow />
+  if (hash === '#/privado') return <PrivateView />
+  return <ProjectorApp />
 }
 
 function ProjectorApp() {
@@ -53,7 +58,19 @@ function ProjectorApp() {
     challenge: <ChallengeScreen />,
     scoreboard: <ScoreboardScreen />,
     final: <FinalScreen />,
+    closing: <ClosingScreen />,
+    credits: <CreditsScreen />,
   }[state.screen]
+
+  // La pantalla final se proyecta limpia, sin barra superior.
+  if (state.screen === 'credits') {
+    return (
+      <>
+        <CreditsScreen />
+        <FacilitatorDrawer open={drawer} onClose={close} />
+      </>
+    )
+  }
 
   return (
     <div className="min-h-screen">

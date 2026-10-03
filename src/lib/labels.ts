@@ -1,4 +1,4 @@
-import type { ChallengeType, EventTone, OutcomeLevel, TurnMode } from '../engine/types'
+import type { ChallengeType, EventKind, EventTone, Outcome, OutcomeTone, PublicEffects, TurnMode } from '../engine/types'
 
 export const challengeTypeMeta: Record<ChallengeType, { label: string; icon: string; color: string }> = {
   decision: { label: 'Decisión', icon: '⚖️', color: '#38e1ff' },
@@ -18,7 +18,7 @@ export const turnModeLabel: Record<TurnMode, string> = {
   interaction: 'Interacción entre equipos',
 }
 
-export const outcomeMeta: Record<OutcomeLevel, { label: string; icon: string; color: string }> = {
+export const outcomeMeta: Record<OutcomeTone, { label: string; icon: string; color: string }> = {
   success: { label: 'Éxito', icon: '✅', color: 'var(--color-success)' },
   partial: { label: 'Éxito parcial', icon: '◐', color: 'var(--color-warning)' },
   fail: { label: 'Fallo', icon: '✖', color: 'var(--color-danger)' },
@@ -32,3 +32,27 @@ export const toneMeta: Record<EventTone, { label: string; color: string; icon: s
 }
 
 export const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
+
+/** Tono visual de un resultado: explícito o deducido de la clave. */
+export function outcomeTone(key: string, outcome?: Outcome): OutcomeTone {
+  if (outcome?.tone) return outcome.tone
+  return key === 'success' || key === 'fail' ? key : 'partial'
+}
+
+export const eventKindLabel: Record<EventKind, string> = {
+  conditional: 'Condicional',
+  consequence: 'Consecuencia',
+  surprise: 'Sorpresa',
+}
+
+export const publicEffectsLabel: Record<PublicEffects, string> = {
+  hidden: 'Ocultos',
+  qualitative: 'Flechas',
+  numeric: 'Números',
+}
+
+/** Flechas según la magnitud: ±1–3 una, ±4–7 dos, ±8 o más tres. */
+export function arrows(delta: number): string {
+  const n = Math.abs(delta) >= 8 ? 3 : Math.abs(delta) >= 4 ? 2 : 1
+  return (delta > 0 ? '▲' : '▼').repeat(n)
+}

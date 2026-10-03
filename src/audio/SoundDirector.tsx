@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTimer } from '../hooks/useTimer'
+import { currentChallenge } from '../engine/selectors'
+import { outcomeTone } from '../lib/labels'
 import { useGame } from '../state/useGame'
 import { setMuted, sfx } from './sfx'
 
@@ -19,13 +21,17 @@ export function SoundDirector() {
     const before = prev.current
     prev.current = state
     if (state.screen !== before.screen) {
-      if (state.screen === 'challenge') sfx.transition()
+      if (state.screen === 'challenge') {
+        if (currentChallenge(state, content)?.ambience === 'crisis') sfx.crisis()
+        else sfx.transition()
+      }
       if (state.screen === 'final') sfx.fanfare()
     }
     if (state.resolutions.length > before.resolutions.length) {
       const r = state.resolutions.at(-1)
-      if (r?.outcome === 'fail') sfx.fail()
-      else if (r?.outcome === 'partial') sfx.partial()
+      const tone = r?.outcome ? outcomeTone(r.outcome, currentChallenge(state, content)?.outcomes?.[r.outcome]) : 'success'
+      if (tone === 'fail') sfx.fail()
+      else if (tone === 'partial') sfx.partial()
       else sfx.success()
     }
     if (state.eventQueue.length > before.eventQueue.length) {

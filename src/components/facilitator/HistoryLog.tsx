@@ -15,10 +15,12 @@ export function HistoryLog() {
             const team = state.teams.find((t) => t.id === h.teamId)
             const what =
               h.kind === 'event'
-                ? `Evento: ${content.events.find((e) => e.id === h.event)?.title ?? h.event}`
+                ? `Evento: ${content.events.find((e) => e.id === h.event)?.title ?? h.event}${h.optionId ? ` → ${h.optionId}` : ''}`
                 : h.kind === 'manual' || h.kind === 'skip'
                   ? h.note
-                  : `${challengeById(content, h.challenge)?.title ?? h.challenge}${h.optionId ? ` → ${h.optionId.toUpperCase()}` : ''}${h.outcome ? ` → ${h.outcome}` : ''}`
+                  : h.bonusId
+                    ? `${challengeById(content, h.challenge)?.title ?? h.challenge} · ${h.note ?? h.bonusId}`
+                    : `${challengeById(content, h.challenge)?.title ?? h.challenge}${h.optionId ? ` → ${h.optionId.toUpperCase()}` : ''}${h.outcome ? ` → ${challengeById(content, h.challenge)?.outcomes?.[h.outcome]?.label ?? h.outcome}` : ''}`
             const changes = diff(h.before, h.after)
             return (
               <li key={h.id} className="rounded-lg bg-deep/60 px-2 py-1.5">

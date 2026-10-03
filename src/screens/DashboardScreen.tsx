@@ -30,13 +30,15 @@ export function DashboardScreen() {
           {challenge && step ? (
             <div className="relative mt-3 animate-rise">
               <p className="font-display text-xl font-semibold text-accent">
-                {chapter?.marker} · {chapter?.label}
+                {challenge.clock ?? chapter?.marker} · {chapter?.label}
+                {challenge.code && <span className="ml-2 text-muted">Reto {challenge.code}</span>}
               </p>
               <h2 className="mt-2 font-display text-4xl leading-tight font-bold text-balance">{challenge.title}</h2>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Chip color={challengeTypeMeta[challenge.type].color}>
                   {challengeTypeMeta[challenge.type].icon} {challengeTypeMeta[challenge.type].label}
                 </Chip>
+                {challenge.inPerson && <Chip color="var(--color-accent-2)">🏃 Presencial</Chip>}
                 {step.injected && <Chip color="var(--color-danger)">⚡ Consecuencia</Chip>}
               </div>
               <div className="mt-6 rounded-2xl border border-line bg-deep/60 p-4">

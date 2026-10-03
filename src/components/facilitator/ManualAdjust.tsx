@@ -69,7 +69,7 @@ export function ManualAdjust() {
                 onClick={() => dispatch({ type: 'TOGGLE_FLAG', teamId: team.id, flag: f })}
                 className="rounded-full border border-accent-2/40 px-2 py-0.5 text-accent-2"
               >
-                {f} ✕
+                {content.flags.find((d) => d.id === f)?.label ?? f} ✕
               </button>
             ))}
           </div>
