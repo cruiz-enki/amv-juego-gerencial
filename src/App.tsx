@@ -16,20 +16,34 @@ import { ScoreboardScreen } from './screens/ScoreboardScreen'
 import { SetupScreen } from './screens/SetupScreen'
 import { useGame } from './state/useGame'
 
-function useHash() {
-  const [hash, setHash] = useState(() => window.location.hash)
+type Route = 'projector' | 'facilitator' | 'private'
+
+/** Rutas: /facilitador y /privado (también aceptan #/facilitador y #/privado). */
+function readRoute(): Route {
+  const path = `${window.location.pathname}${window.location.hash}`.toLowerCase()
+  if (path.includes('facilitador')) return 'facilitator'
+  if (path.includes('privado')) return 'private'
+  return 'projector'
+}
+
+function useRoute(): Route {
+  const [route, setRoute] = useState(readRoute)
   useEffect(() => {
-    const onChange = () => setHash(window.location.hash)
+    const onChange = () => setRoute(readRoute())
     window.addEventListener('hashchange', onChange)
-    return () => window.removeEventListener('hashchange', onChange)
+    window.addEventListener('popstate', onChange)
+    return () => {
+      window.removeEventListener('hashchange', onChange)
+      window.removeEventListener('popstate', onChange)
+    }
   }, [])
-  return hash
+  return route
 }
 
 export default function App() {
-  const hash = useHash()
-  if (hash === '#/facilitador') return <FacilitatorWindow />
-  if (hash === '#/privado') return <PrivateView />
+  const route = useRoute()
+  if (route === 'facilitator') return <FacilitatorWindow />
+  if (route === 'private') return <PrivateView />
   return <ProjectorApp />
 }
 

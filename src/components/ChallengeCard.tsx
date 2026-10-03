@@ -2,21 +2,27 @@ import { evaluate } from '../engine/conditions'
 import type { Challenge, TeamState } from '../engine/types'
 import { challengeTypeMeta, OPTION_LETTERS } from '../lib/labels'
 import { useGame } from '../state/useGame'
+import { TeamBadge } from './TeamBadge'
 import { Chip } from './ui/Panel'
 
 interface Props {
   challenge: Challenge
   injected?: boolean
   dense?: boolean
-  /** Equipo que resuelve (para textos condicionados a su historial). */
+  /** Equipo(s) que resuelven (para textos condicionados a su historial). */
   team?: TeamState
+  teams?: TeamState[]
 }
 
 /** Todo lo PÚBLICO de un reto. Nada de lo privado del facilitador pasa por aquí. */
-export function ChallengeCard({ challenge, injected = false, dense = false, team }: Props) {
+export function ChallengeCard({ challenge, injected = false, dense = false, team, teams }: Props) {
   const { state, content } = useGame()
   const type = challengeTypeMeta[challenge.type]
-  const callbacks = team ? (challenge.callbacks ?? []).filter((cb) => evaluate(cb.when, team, state)) : []
+  // Cada texto condicionado se muestra con los equipos a los que aplica.
+  const candidates = team ? [team] : (teams ?? [])
+  const callbacks = (challenge.callbacks ?? [])
+    .map((cb) => ({ cb, matched: candidates.filter((t) => evaluate(cb.when, t, state)) }))
+    .filter((x) => x.matched.length > 0)
   const text = dense ? 'text-xl' : 'text-2xl'
 
   return (
@@ -96,9 +102,16 @@ export function ChallengeCard({ challenge, injected = false, dense = false, team
         </ul>
       )}
 
-      {callbacks.map((cb, i) => (
-        <div key={i} className="mt-6 animate-pop rounded-2xl border-2 border-accent-2/60 bg-accent-2/10 p-5">
-          {cb.title && <p className="mb-1 font-display text-lg font-bold text-accent-2">{cb.title}</p>}
+      {callbacks.map(({ cb, matched }, i) => (
+        <div key={i} className={`animate-pop rounded-2xl border-2 border-accent-2/60 bg-accent-2/10 ${dense ? 'mt-4 p-4' : 'mt-6 p-5'}`}>
+          <p className="mb-1 flex flex-wrap items-center gap-2 font-display text-lg font-bold text-accent-2">
+            {cb.title}
+            {!team && matched.map((t) => (
+              <span key={t.id} className="flex items-center gap-1 text-base text-text">
+                <TeamBadge team={t} size="sm" /> {t.name}
+              </span>
+            ))}
+          </p>
           <p className="text-xl">{cb.text}</p>
         </div>
       ))}

@@ -91,7 +91,7 @@ export function CurrentChallenge() {
           </Button>
         )}
         {challenge.secret && (
-          <Button size="sm" onClick={() => window.open(`${window.location.pathname}#/privado`, 'punto-critico-privado', 'width=900,height=900')}>
+          <Button size="sm" onClick={() => window.open('/privado', 'punto-critico-privado', 'width=900,height=900')}>
             🔒 Vista privada: {challenge.secret.title}
           </Button>
         )}

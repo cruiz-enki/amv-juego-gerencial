@@ -28,7 +28,7 @@ export function ChallengeScreen() {
     <div className={crisis ? 'min-h-[calc(100vh-4.5rem)] bg-[radial-gradient(80rem_40rem_at_50%_-10%,rgb(255_84_112/0.22),transparent_70%)]' : ''}>
       <main key={step.uid} className="grid gap-8 px-4 py-6 md:px-10 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
         <section className="min-w-0">
-          <ChallengeCard challenge={challenge} injected={step.injected} dense={shared} team={shared ? undefined : teams[0]} />
+          <ChallengeCard challenge={challenge} injected={step.injected} dense={shared} team={shared ? undefined : teams[0]} teams={teams} />
           {resolvable && (
             <div className={shared ? 'mt-5' : 'mt-8'}>
               {shared ? (
@@ -116,42 +116,50 @@ function Dossiers({ teams }: { teams: TeamState[] }) {
   )
 }
 
-/** Varios equipos resuelven el mismo reto: una fila por equipo. */
+/** Varios equipos resuelven el mismo reto: una tarjeta por equipo. */
 function SharedResolution({ challenge, teams }: { challenge: Challenge; teams: TeamState[] }) {
   const { state, dispatch } = useGame()
+  const twoCols = teams.length > 3
+  const options = challenge.options ?? []
+  const chosen = options.filter((o) => teams.some((t) => resolutionFor(state, t.id)?.optionId === o.id))
+  const allDone = teams.every((t) => resolutionFor(state, t.id))
   return (
     <div className="grid gap-4">
-      {challenge.options && (
-        <ol className="grid gap-2">
-          {challenge.options.map((o, i) => (
-            <li key={o.id} className="flex gap-3 text-xl">
-              <span className="font-display font-bold text-accent">{OPTION_LETTERS[i]}</span> {o.label}
+      {options.length > 0 && (
+        <ol className="grid gap-1.5">
+          {options.map((o, i) => (
+            <li key={o.id} className="flex gap-3 text-xl leading-snug">
+              <span className="font-display font-bold text-accent">{OPTION_LETTERS[i]}</span>
+              <span>
+                {o.label}
+                {o.detail && <span className="text-muted"> — {o.detail}</span>}
+              </span>
             </li>
           ))}
         </ol>
       )}
-      <div className="grid gap-2">
+      <div className={`grid gap-2 ${twoCols ? 'lg:grid-cols-2' : ''}`}>
         {teams.map((team) => {
           const res = resolutionFor(state, team.id)
           const entry = state.history.find((h) => h.id === res?.historyId)
           return (
-            <Panel key={team.id} className="flex flex-wrap items-center gap-4 px-4 py-2">
-              <span className="flex w-56 items-center gap-3 font-display text-lg font-bold">
-                <TeamBadge team={team} size="sm" /> {team.name}
+            <Panel key={team.id} className={`flex items-center gap-3 px-4 py-2 ${twoCols ? 'flex-wrap' : ''}`}>
+              <span className={`flex shrink-0 items-center gap-2 font-display text-lg font-bold ${twoCols ? 'w-full xl:w-44' : 'w-56'}`}>
+                <TeamBadge team={team} size="sm" /> <span className="truncate">{team.name}</span>
               </span>
               <div className="min-w-0 flex-1">
-                {challenge.options ? (
+                {options.length ? (
                   res ? (
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="grid size-9 place-items-center rounded-lg bg-accent font-display font-bold text-ink">
-                        {OPTION_LETTERS[challenge.options.findIndex((o) => o.id === res.optionId)]}
+                        {OPTION_LETTERS[options.findIndex((o) => o.id === res.optionId)]}
                       </span>
                       <PublicEffects entry={entry} size="sm" />
                     </div>
                   ) : (
                     <div className="flex gap-2">
-                      {challenge.options.map((o, i) => (
-                        <Button key={o.id} onClick={() => dispatch({ type: 'RESOLVE', teamId: team.id, optionId: o.id })}>
+                      {options.map((o, i) => (
+                        <Button key={o.id} className="min-w-12" onClick={() => dispatch({ type: 'RESOLVE', teamId: team.id, optionId: o.id })}>
                           {OPTION_LETTERS[i]}
                         </Button>
                       ))}
@@ -165,6 +173,25 @@ function SharedResolution({ challenge, teams }: { challenge: Challenge; teams: T
           )
         })}
       </div>
+      {allDone && state.revealed && chosen.some((o) => o.feedback) && (
+        <ul className="grid animate-rise gap-2">
+          {chosen
+            .filter((o) => o.feedback)
+            .map((o) => (
+              <li key={o.id} className="flex gap-3 rounded-xl border border-accent/30 bg-accent/5 px-4 py-2 text-lg">
+                <span className="font-display font-bold text-accent">{OPTION_LETTERS[options.indexOf(o)]}</span>
+                <span className="flex -space-x-1">
+                  {teams
+                    .filter((t) => resolutionFor(state, t.id)?.optionId === o.id)
+                    .map((t) => (
+                      <TeamBadge key={t.id} team={t} size="sm" />
+                    ))}
+                </span>
+                <span>{o.feedback}</span>
+              </li>
+            ))}
+        </ul>
+      )}
     </div>
   )
 }

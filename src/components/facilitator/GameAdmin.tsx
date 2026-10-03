@@ -23,7 +23,7 @@ export function GameAdmin() {
         </p>
       )}
       <div className="grid grid-cols-2 gap-2">
-        <Button size="sm" onClick={() => window.open(`${window.location.pathname}#/facilitador`, 'punto-critico-facilitador', 'width=560,height=900')}>
+        <Button size="sm" onClick={() => window.open('/facilitador', 'punto-critico-facilitador', 'width=560,height=900')}>
           🪟 Abrir en otra ventana
         </Button>
         <Button size="sm" onClick={() => downloadBackup({ state, past: [] })}>💾 Descargar respaldo</Button>

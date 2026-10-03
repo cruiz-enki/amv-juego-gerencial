@@ -27,7 +27,7 @@ export function PrivateView() {
       )}
       {secret.cards && (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {secret.cards.map((c, i) => (
+          {secret.cards.slice(0, state.teams.length || secret.cards.length).map((c, i) => (
             <section key={i} className="rounded-2xl border border-line-strong bg-panel p-5">
               <h2 className="font-display text-2xl font-bold">{state.teams[i]?.name ?? c.title}</h2>
               {c.lines.map((l) => (
