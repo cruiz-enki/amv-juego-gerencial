@@ -17,14 +17,14 @@ export function TeamDossier({ team }: { team: TeamState }) {
     .filter((f) => f?.showInDossier)
 
   return (
-    <Panel className="grid animate-rise gap-6 p-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+    <Panel className="grid animate-rise gap-6 p-6 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
       <div className="min-w-0">
         <div className="mb-4 flex items-center gap-3">
           <TeamBadge team={team} size="lg" />
           <h2 className="font-display text-3xl font-bold">{team.name}</h2>
         </div>
         <Eyebrow>Decisiones principales</Eyebrow>
-        <ol className="mt-2 grid gap-1.5 text-lg">
+        <ol className="mt-2 gap-x-8 text-base lg:columns-2">
           {decisions.length === 0 && <li className="text-muted">Sin decisiones registradas.</li>}
           {decisions.map((h) => {
             const ch = challengeById(content, h.challenge)
@@ -32,8 +32,8 @@ export function TeamDossier({ team }: { team: TeamState }) {
             const outcome = h.outcome ? ch?.outcomes?.[h.outcome] : undefined
             const meta = h.outcome ? outcomeMeta[outcomeTone(h.outcome, outcome)] : undefined
             return (
-              <li key={h.id} className="flex gap-3">
-                <span className="w-10 shrink-0 font-display font-bold text-faint">{ch?.code}</span>
+              <li key={h.id} className="mb-1.5 flex break-inside-avoid gap-3">
+                <span className="w-7 shrink-0 font-display font-bold text-faint">{ch?.code}</span>
                 <span>
                   <b>{ch?.title}</b>
                   <span className="text-muted"> — </span>

@@ -48,9 +48,9 @@ export function ChallengeCard({ challenge, injected = false, dense = false, team
       <p className={`max-w-[62ch] leading-relaxed text-text/90 text-pretty ${dense ? 'mt-3' : 'mt-5'} ${text}`}>{challenge.narrative}</p>
 
       {challenge.items && challenge.items.length > 0 && (
-        <ol className={`grid gap-x-8 gap-y-1.5 ${dense ? 'mt-3' : 'mt-5'} ${challenge.items.length > 5 ? 'lg:grid-cols-2' : ''}`}>
+        <ol className={`gap-x-8 ${dense ? 'mt-3' : 'mt-5'} ${challenge.items.length > 5 ? 'lg:columns-2' : ''}`}>
           {challenge.items.map((item, i) => (
-            <li key={i} className={`flex gap-3 ${dense ? 'text-lg' : 'text-xl'}`}>
+            <li key={i} className={`mb-1 flex break-inside-avoid gap-3 ${dense ? 'text-lg leading-snug' : 'text-xl'}`}>
               <span className="w-6 shrink-0 font-display font-bold text-accent-2">
                 {challenge.itemStyle === 'letter' ? OPTION_LETTERS[i] ?? '•' : challenge.itemStyle === 'bullet' ? '•' : i + 1}
               </span>

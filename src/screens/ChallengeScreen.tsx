@@ -48,7 +48,6 @@ export function ChallengeScreen() {
               {challenge.takeaway}
             </p>
           )}
-          {challenge.showDossier && <Dossiers teams={state.teams} />}
         </section>
 
         <aside className="flex flex-col gap-6 xl:sticky xl:top-4 xl:max-h-[calc(100vh-6rem)] xl:self-start">
@@ -84,6 +83,11 @@ export function ChallengeScreen() {
           </div>
         </aside>
       </main>
+      {challenge.showDossier && (
+        <div className="px-4 pb-8 md:px-10">
+          <Dossiers teams={state.teams} />
+        </div>
+      )}
     </div>
   )
 }
@@ -93,7 +97,7 @@ function Dossiers({ teams }: { teams: TeamState[] }) {
   const team = teams.find((t) => t.id === selected) ?? teams[0]
   if (!team) return null
   return (
-    <div className="mt-8">
+    <div>
       <div className="mb-3 flex flex-wrap gap-2" role="tablist" aria-label="Expediente por equipo">
         {teams.map((t) => (
           <button
