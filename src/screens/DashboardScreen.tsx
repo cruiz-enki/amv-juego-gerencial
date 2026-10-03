@@ -15,11 +15,11 @@ export function DashboardScreen() {
   const responders = resolvers(state, content)
   const shared = step ? isSharedMode(step.turnMode) : false
   const highlighted = shared ? undefined : (responders[0] ?? activeTeam(state))
-  const cols = state.teams.length <= 2 ? 'grid-cols-2' : state.teams.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'
+  const cols = state.teams.length <= 4 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 xl:grid-cols-3'
 
   return (
-    <main className="grid gap-6 px-8 py-6">
-      <Panel className="px-8 pt-6 pb-5">
+    <main className="grid gap-5 px-4 py-5 md:px-8">
+      <Panel className="px-8 pt-5 pb-4">
         <GameBoard />
       </Panel>
 
@@ -71,7 +71,7 @@ export function DashboardScreen() {
 
         <section className={`grid gap-4 ${cols}`} aria-label="Equipos">
           {state.teams.map((team) => (
-            <TeamCard key={team.id} team={team} active={team.id === highlighted?.id} compact={state.teams.length > 4} />
+            <TeamCard key={team.id} team={team} active={team.id === highlighted?.id} compact={state.teams.length > 2} />
           ))}
         </section>
       </div>

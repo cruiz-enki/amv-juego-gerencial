@@ -25,7 +25,7 @@ export function SetupScreen() {
   const valid = teams.every((t) => t.name.trim().length > 0)
 
   return (
-    <main className="mx-auto max-w-7xl px-8 py-10">
+    <main className="mx-auto max-w-7xl px-4 py-10 md:px-8">
       <button onClick={() => dispatch({ type: 'GO', screen: 'home' })} className="mb-6 text-muted hover:text-text">
         ← Volver
       </button>

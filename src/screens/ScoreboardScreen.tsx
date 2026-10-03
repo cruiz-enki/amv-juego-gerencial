@@ -6,7 +6,7 @@ import { useGame } from '../state/useGame'
 export function ScoreboardScreen() {
   const { state, dispatch } = useGame()
   return (
-    <main className="px-10 py-8">
+    <main className="px-4 py-6 md:px-10 md:py-8">
       <div className="mb-6 flex items-end justify-between">
         <div>
           <Eyebrow>Marcador</Eyebrow>

@@ -52,9 +52,9 @@
   }
 }
 
-/* Escala tipográfica pensada para proyector: 1rem ≈ 22px en 1920×1080. */
+/* Escala tipográfica pensada para proyector: 1rem ≈ 20px en 1920×1080. */
 html {
-  font-size: clamp(14px, 0.85vw + 6px, 22px);
+  font-size: clamp(14px, 0.75vw + 6px, 20px);
   color-scheme: dark;
 }
 

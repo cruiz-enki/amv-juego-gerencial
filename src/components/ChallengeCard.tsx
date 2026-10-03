@@ -3,7 +3,7 @@ import { challengeTypeMeta } from '../lib/labels'
 import { useGame } from '../state/useGame'
 import { Chip } from './ui/Panel'
 
-export function ChallengeCard({ challenge, injected = false }: { challenge: Challenge; injected?: boolean }) {
+export function ChallengeCard({ challenge, injected = false, dense = false }: { challenge: Challenge; injected?: boolean; dense?: boolean }) {
   const { content } = useGame()
   const type = challengeTypeMeta[challenge.type]
   return (
@@ -22,12 +22,12 @@ export function ChallengeCard({ challenge, injected = false }: { challenge: Chal
           )
         })}
       </div>
-      <h1 className="font-display text-5xl leading-tight font-bold tracking-tight text-balance">{challenge.title}</h1>
-      <p className="mt-5 max-w-[60ch] text-2xl leading-relaxed text-text/90 text-pretty">{challenge.narrative}</p>
+      <h1 className={`font-display leading-tight font-bold tracking-tight text-balance ${dense ? 'text-4xl' : 'text-5xl'}`}>{challenge.title}</h1>
+      <p className={`max-w-[62ch] leading-relaxed text-text/90 text-pretty ${dense ? 'mt-3 text-xl' : 'mt-5 text-2xl'}`}>{challenge.narrative}</p>
       {challenge.instructions && challenge.instructions.length > 0 && (
-        <ul className="mt-6 grid gap-2">
+        <ul className={`grid ${dense ? 'mt-4 gap-1' : 'mt-6 gap-2'}`}>
           {challenge.instructions.map((line, i) => (
-            <li key={i} className="flex gap-3 text-xl text-muted">
+            <li key={i} className={`flex gap-3 text-muted ${dense ? 'text-lg' : 'text-xl'}`}>
               <span className="font-display font-bold text-accent">{i + 1}</span>
               <span>{line}</span>
             </li>

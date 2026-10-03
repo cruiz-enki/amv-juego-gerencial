@@ -10,7 +10,7 @@ export function TopBar({ onOpenFacilitator }: { onOpenFacilitator: () => void })
   const { state, content, dispatch } = useGame()
   const iconBtn = 'grid size-11 place-items-center rounded-xl border border-line bg-panel/70 text-xl hover:border-line-strong'
   return (
-    <header className="flex items-center justify-between gap-6 border-b border-line bg-ink/60 px-8 py-3 backdrop-blur">
+    <header className="flex items-center justify-between gap-3 border-b border-line bg-ink/60 px-4 py-3 md:gap-6 md:px-8 backdrop-blur">
       <div className="flex min-w-0 items-center gap-3">
         <img src="/favicon.svg" alt="" className="size-10" />
         <div className="min-w-0">

@@ -12,7 +12,10 @@ export function FinalResults() {
 
   return (
     <div className="grid gap-8">
-      <section className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(ranked.length, 3)}, minmax(0, 1fr))` }}>
+      <section
+        className="grid gap-4 md:grid-cols-2 xl:grid-cols-[repeat(var(--cols),minmax(0,1fr))]"
+        style={{ '--cols': ranked.length <= 4 ? ranked.length : 3 } as React.CSSProperties}
+      >
         {ranked.map((s, i) => {
           const keyDecisions = state.history.filter((h) => h.teamId === s.team.id && h.kind === 'challenge' && h.optionId)
           return (
@@ -68,7 +71,7 @@ export function FinalResults() {
 
       <section>
         <h2 className="mb-4 font-display text-3xl font-bold">Reconocimientos</h2>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {awards.map(({ award, winners, value }, i) => (
             <Panel key={award.id} className="flex animate-pop items-center gap-4 p-5" style={{ animationDelay: `${300 + i * 90}ms` }}>
               <span className="text-5xl" aria-hidden>

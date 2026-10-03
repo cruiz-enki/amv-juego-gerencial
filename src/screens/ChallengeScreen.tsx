@@ -21,10 +21,10 @@ export function ChallengeScreen() {
   const allResolved = teams.length > 0 && teams.every((t) => resolutionFor(state, t.id))
 
   return (
-    <main key={step.uid} className="grid gap-8 px-10 py-8 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+    <main key={step.uid} className="grid gap-8 px-4 py-6 md:px-10 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
       <section className="min-w-0">
-        <ChallengeCard challenge={challenge} injected={step.injected} />
-        <div className="mt-8">
+        <ChallengeCard challenge={challenge} injected={step.injected} dense={shared} />
+        <div className={shared ? 'mt-5' : 'mt-8'}>
           {shared ? (
             <SharedResolution challenge={challenge} teams={teams} />
           ) : (
@@ -38,7 +38,7 @@ export function ChallengeScreen() {
         </div>
       </section>
 
-      <aside className="flex flex-col gap-6">
+      <aside className="flex flex-col gap-6 xl:sticky xl:top-4 xl:max-h-[calc(100vh-6rem)] xl:self-start">
         {challenge.durationSec ? (
           <Panel className="grid place-items-center p-6">
             <Timer />
@@ -59,7 +59,7 @@ export function ChallengeScreen() {
             })}
           </ul>
         </Panel>
-        <div className="mt-auto flex gap-3">
+        <div className="flex gap-3">
           <Button variant="ghost" onClick={() => dispatch({ type: 'GO', screen: 'dashboard' })}>
             ← Tablero
           </Button>
@@ -91,7 +91,7 @@ function SharedResolution({ challenge, teams }: { challenge: Challenge; teams: T
           const res = resolutionFor(state, team.id)
           const entry = state.history.find((h) => h.id === res?.historyId)
           return (
-            <Panel key={team.id} className="flex flex-wrap items-center gap-4 px-4 py-3">
+            <Panel key={team.id} className="flex flex-wrap items-center gap-4 px-4 py-2">
               <span className="flex w-56 items-center gap-3 font-display text-lg font-bold">
                 <TeamBadge team={team} size="sm" /> {team.name}
               </span>
