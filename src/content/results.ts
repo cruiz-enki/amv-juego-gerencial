@@ -5,8 +5,10 @@ const atLeast = (indicator: string, value: number): Condition => ({ indicator, o
 
 /**
  * Perfiles finales — fuente: documento "Punto Crítico". Se asigna el PRIMERO que
- * cumpla su condición. Orden: "Equipo equilibrado" primero (es el más exigente);
- * después el orden del documento.
+ * cumpla su condición, así que el orden importa. Balance v2: se ordenan del rasgo
+ * más difícil de lograr al más común (Equilibrado → Negociador → Constructor →
+ * Estratega → Ejecutor → Bombero); así cada perfil es alcanzable y ninguno
+ * "tapa" a otro. Umbrales según el documento ajustado por Carlos (oct-2026).
  */
 export const profiles: ManagerProfile[] = [
   {
@@ -18,6 +20,22 @@ export const profiles: ManagerProfile[] = [
     match: { all: [...ALL.map((id) => atLeast(id, 60)), { spread: '<=', value: 20 }] },
   },
   {
+    id: 'negociador',
+    title: 'Negociador',
+    icon: '🤝',
+    description:
+      'Saben construir acuerdos y proteger relaciones. Su reto es no confundir consenso con evitar decisiones.',
+    match: { all: [atLeast('reputacion', 68), atLeast('recursos', 60)] },
+  },
+  {
+    id: 'constructor',
+    title: 'Constructor de equipos',
+    icon: '🌱',
+    description:
+      'Generan confianza y desarrollan capacidad colectiva. Su siguiente reto es mantener esa fortaleza sin evitar decisiones difíciles.',
+    match: { all: [atLeast('equipo', 68), atLeast('liderazgo', 65)] },
+  },
+  {
     id: 'estratega',
     title: 'Estratega',
     icon: '♟️',
@@ -26,28 +44,12 @@ export const profiles: ManagerProfile[] = [
     match: { all: [atLeast('resultados', 70), atLeast('recursos', 65)] },
   },
   {
-    id: 'constructor',
-    title: 'Constructor de equipos',
-    icon: '🌱',
-    description:
-      'Generan confianza y desarrollan capacidad colectiva. Su siguiente reto es mantener esa fortaleza sin evitar decisiones difíciles.',
-    match: { all: [atLeast('equipo', 75), atLeast('liderazgo', 65)] },
-  },
-  {
     id: 'ejecutor',
     title: 'Ejecutor',
     icon: '🚀',
     description:
       'Logran que las cosas ocurran. Su fortaleza es la orientación a resultados. Su reto es asegurar que la velocidad no genere costos invisibles.',
-    match: atLeast('resultados', 80),
-  },
-  {
-    id: 'negociador',
-    title: 'Negociador',
-    icon: '🤝',
-    description:
-      'Saben construir acuerdos y proteger relaciones. Su reto es no confundir consenso con evitar decisiones.',
-    match: { all: [atLeast('reputacion', 75), atLeast('recursos', 60)] },
+    match: atLeast('resultados', 75),
   },
   {
     id: 'bombero',
