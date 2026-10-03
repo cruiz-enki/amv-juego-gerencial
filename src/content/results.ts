@@ -5,7 +5,8 @@ const atLeast = (indicator: string, value: number): Condition => ({ indicator, o
 
 /**
  * Perfiles finales — fuente: documento "Punto Crítico". Se asigna el PRIMERO que
- * cumpla su condición, así que van del más específico al más general.
+ * cumpla su condición. Orden: "Equipo equilibrado" primero (es el más exigente);
+ * después el orden del documento.
  */
 export const profiles: ManagerProfile[] = [
   {
@@ -15,14 +16,6 @@ export const profiles: ManagerProfile[] = [
     description:
       'Lograron equilibrar resultados, personas y recursos. Su siguiente reto es decidir en qué dimensión quieren convertirse en extraordinarios.',
     match: { all: [...ALL.map((id) => atLeast(id, 60)), { spread: '<=', value: 20 }] },
-  },
-  {
-    id: 'ejecutor',
-    title: 'Ejecutor',
-    icon: '🚀',
-    description:
-      'Logran que las cosas ocurran. Su fortaleza es la orientación a resultados. Su reto es asegurar que la velocidad no genere costos invisibles.',
-    match: atLeast('resultados', 80),
   },
   {
     id: 'estratega',
@@ -39,6 +32,14 @@ export const profiles: ManagerProfile[] = [
     description:
       'Generan confianza y desarrollan capacidad colectiva. Su siguiente reto es mantener esa fortaleza sin evitar decisiones difíciles.',
     match: { all: [atLeast('equipo', 75), atLeast('liderazgo', 65)] },
+  },
+  {
+    id: 'ejecutor',
+    title: 'Ejecutor',
+    icon: '🚀',
+    description:
+      'Logran que las cosas ocurran. Su fortaleza es la orientación a resultados. Su reto es asegurar que la velocidad no genere costos invisibles.',
+    match: atLeast('resultados', 80),
   },
   {
     id: 'negociador',
