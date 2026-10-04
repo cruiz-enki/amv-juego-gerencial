@@ -5,13 +5,13 @@ import { Button } from '../ui/Button'
 import { Section } from './Section'
 
 export function GameAdmin() {
-  const { state, dispatch, reset, load, saveFailed } = useGame()
+  const { state, content, dispatch, reset, load, saveFailed } = useGame()
   const fileRef = useRef<HTMLInputElement>(null)
 
   const onImport = async (file: File | undefined) => {
     if (!file) return
     const parsed = parseBackup(await file.text())
-    if (parsed) load(parsed)
+    if (parsed) load(parsed.state, parsed.content)
     else window.alert('El archivo no es un respaldo válido de partida.')
   }
 
@@ -26,7 +26,7 @@ export function GameAdmin() {
         <Button size="sm" onClick={() => window.open('/facilitador', 'punto-critico-facilitador', 'width=560,height=900')}>
           🪟 Abrir en otra ventana
         </Button>
-        <Button size="sm" onClick={() => downloadBackup({ state, past: [] })}>💾 Descargar respaldo</Button>
+        <Button size="sm" onClick={() => downloadBackup({ state, past: [], content })}>💾 Descargar respaldo</Button>
         <Button size="sm" onClick={() => fileRef.current?.click()}>📂 Cargar respaldo</Button>
         <Button
           size="sm"

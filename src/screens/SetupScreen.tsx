@@ -6,7 +6,7 @@ import type { NewTeam } from '../engine/reducer'
 import { useGame } from '../state/useGame'
 
 export function SetupScreen() {
-  const { content, dispatch } = useGame()
+  const { content, dispatch, startGame } = useGame()
   const { min, max, default: initialCount } = content.config.teams
   const presets = content.teamPresets
   const preset = (i: number): NewTeam => {
@@ -85,7 +85,7 @@ export function SetupScreen() {
       </div>
 
       <div className="mt-10 flex justify-end">
-        <Button size="lg" variant="primary" disabled={!valid} onClick={() => dispatch({ type: 'START_GAME', teams })}>
+        <Button size="lg" variant="primary" disabled={!valid} onClick={() => startGame(teams)}>
           Comenzar el día ▶
         </Button>
       </div>

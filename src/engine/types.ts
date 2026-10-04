@@ -138,6 +138,9 @@ export type OutcomeLevel = string
 /** Cómo se pinta un resultado (color/ícono). */
 export type OutcomeTone = 'success' | 'partial' | 'fail'
 
+/** Respuesta deseada (privada): cómo valora el diseño pedagógico cada opción. */
+export type OptionRecommendation = 'recommended' | 'acceptable' | 'discouraged'
+
 export interface ChallengeOption {
   id: string
   label: string
@@ -145,6 +148,12 @@ export interface ChallengeOption {
   effect: Effect
   /** Texto público tras elegirla (opcional). */
   feedback?: string
+  /** Privado: opción recomendada / aceptable / desaconsejada. */
+  recommendation?: OptionRecommendation
+  /** Privado: tono visual para el facilitador. */
+  tone?: OutcomeTone
+  /** Privado: notas internas. */
+  notes?: string
 }
 
 export interface Outcome {
@@ -198,6 +207,8 @@ export interface SecretInfo {
 
 export interface Challenge {
   id: ChallengeId
+  /** Inactivo = existe en admin pero no entra en nuevas partidas (por defecto activo). */
+  active?: boolean
   /** Número visible en la guía del facilitador ("RETO 03"). */
   code?: string
   title: string
@@ -214,6 +225,8 @@ export interface Challenge {
   categories: CategoryId[]
   chapter: ChapterId
   narrative: string
+  /** Pregunta pública destacada. */
+  question?: string
   /** Elementos de la situación (lista pública numerada / con letras). */
   items?: string[]
   itemStyle?: 'number' | 'letter' | 'bullet'
@@ -260,6 +273,7 @@ export type EventKind = 'conditional' | 'consequence' | 'surprise'
 
 export interface GameEvent {
   id: EventId
+  active?: boolean
   title: string
   kind: EventKind
   tone: EventTone
@@ -286,6 +300,10 @@ export interface GameEvent {
 // ─── Final ────────────────────────────────────────────────────────────────
 export interface ManagerProfile {
   id: string
+  active?: boolean
+  /** Fortalezas y riesgo (opcionales, se muestran en el final). */
+  strengths?: string
+  risk?: string
   title: string
   description: string
   icon: string
@@ -303,6 +321,7 @@ export type AwardMetric =
 
 export interface AwardDef {
   id: string
+  active?: boolean
   title: string
   icon: string
   description: string
@@ -465,4 +484,9 @@ export interface GameState {
   publicEffects: PublicEffects
   /** Preguntas de seguimiento del reto actual visibles en pantalla. */
   showFollowUp: boolean
+}
+
+/** Un elemento está activo salvo que se marque `active: false`. */
+export function isActive(item: { active?: boolean } | undefined): boolean {
+  return !!item && item.active !== false
 }

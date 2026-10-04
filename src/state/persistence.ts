@@ -1,9 +1,14 @@
-import type { GameState } from '../engine/types'
+import type { GameContent, GameState } from '../engine/types'
 
 export interface PersistedGame {
   state: GameState
   /** Pila de deshacer (también se guarda para que funcione entre ventanas). */
   past: GameState[]
+  /**
+   * Contenido congelado con el que se inició la partida (snapshot de /admin o base).
+   * Los cambios posteriores en /admin no la afectan.
+   */
+  content?: GameContent
 }
 
 /**
@@ -30,7 +35,8 @@ function isValid(value: unknown): value is PersistedGame {
     Array.isArray(state.teams) &&
     Array.isArray(state.agenda) &&
     Array.isArray(state.history) &&
-    Array.isArray(past)
+    Array.isArray(past) &&
+    ((value as Partial<PersistedGame>).content === undefined || typeof (value as Partial<PersistedGame>).content === 'object')
   )
 }
 
@@ -81,7 +87,7 @@ export const localGameStorage: GameStorage = {
 
 /** Descarga la partida como JSON (respaldo manual del facilitador). */
 export function downloadBackup(game: PersistedGame) {
-  const blob = new Blob([JSON.stringify(game.state, null, 2)], { type: 'application/json' })
+  const blob = new Blob([JSON.stringify({ state: game.state, content: game.content }, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
@@ -90,10 +96,13 @@ export function downloadBackup(game: PersistedGame) {
   URL.revokeObjectURL(url)
 }
 
-export function parseBackup(text: string): GameState | null {
+/** Acepta respaldos nuevos ({ state, content }) y antiguos (sólo el estado). */
+export function parseBackup(text: string): { state: GameState; content?: GameContent } | null {
   try {
-    const state = JSON.parse(text) as GameState
-    return isValid({ state, past: [] }) ? state : null
+    const data = JSON.parse(text) as { state?: GameState; content?: GameContent } & GameState
+    const state = data.state ?? (data as GameState)
+    const content = data.state ? data.content : undefined
+    return isValid({ state, past: [], content }) ? { state, content } : null
   } catch {
     return null
   }

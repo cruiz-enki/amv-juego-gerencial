@@ -117,7 +117,7 @@ export function applyEffect(
       ]
     }
   }
-  if (effect.injectChallenge) {
+  if (effect.injectChallenge && content.challenges.find((c) => c.id === effect.injectChallenge)?.active !== false) {
     const [uid, withSeq] = nextId(next, 's')
     next = withSeq
     const injected: AgendaStep = {

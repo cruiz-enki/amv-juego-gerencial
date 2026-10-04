@@ -1,6 +1,7 @@
 import { evaluate } from './conditions'
 import { globalIndex, imbalance } from './selectors'
 import type { AwardDef, GameContent, GameState, ManagerProfile, TeamState } from './types'
+import { isActive } from './types'
 
 export interface TeamSummary {
   team: TeamState
@@ -20,7 +21,7 @@ export function summarizeTeam(team: TeamState, state: GameState, content: GameCo
   return {
     team,
     globalIndex: globalIndex(team, content.indicators),
-    profile: content.profiles.find((p) => evaluate(p.match, team, state)),
+    profile: content.profiles.find((p) => isActive(p) && evaluate(p.match, team, state)),
     strongest: sorted[0]?.id ?? '',
     weakest: sorted[sorted.length - 1]?.id ?? '',
     decisions: history.filter((h) => h.kind === 'challenge' && !h.bonusId).length,
@@ -62,7 +63,7 @@ function challengeEntries(state: GameState, teamId: string, challenges: string[]
 /** Reconocimientos: gana quien tenga el valor más alto (empates comparten). */
 export function computeAwards(state: GameState, content: GameContent): AwardResult[] {
   if (state.teams.length === 0) return []
-  return content.awards.map((award) => {
+  return content.awards.filter(isActive).map((award) => {
     const m = award.metric
     // Un reconocimiento por retos específicos sólo compite entre quienes los jugaron.
     const eligible =

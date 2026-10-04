@@ -14,6 +14,7 @@ import type {
   TeamId,
   TeamState,
 } from './types'
+import { isActive } from './types'
 
 export interface NewTeam {
   name: string
@@ -150,6 +151,7 @@ function queueEvents(state: GameState, content: GameContent): GameState {
   const queue: QueuedEvent[] = [...next.eventQueue]
   const pending = []
   for (const p of next.pending) {
+    if (p.dueStep <= next.stepIndex && !isActive(content.events.find((e) => e.id === p.event))) continue
     if (p.dueStep <= next.stepIndex) {
       const [uid, s] = nextId(next, 'e')
       next = s
@@ -160,7 +162,7 @@ function queueEvents(state: GameState, content: GameContent): GameState {
   for (const team of next.teams) {
     // Máximo un evento condicional por equipo por paso, para no saturar.
     const ev = content.events.find((e) => {
-      if (!e.trigger) return false
+      if (!e.trigger || !isActive(e)) return false
       if ((e.minStep ?? 0) > next.stepIndex) return false
       if (e.maxStep !== undefined && e.maxStep < next.stepIndex) return false
       if (!e.repeatable && fired.includes(`${e.id}:${team.id}`)) return false
@@ -223,7 +225,10 @@ function transition(state: GameState, action: GameAction, content: GameContent):
         publicEffects: content.config.publicEffects,
         teams: createTeams(action.teams, content),
       }
-      next.agenda = content.config.agenda.map((a, i) => ({
+      // Los retos inactivos no entran en nuevas partidas.
+      next.agenda = content.config.agenda
+        .filter((a) => isActive(challengeById(content, a.challenge)))
+        .map((a, i) => ({
         uid: `s0-${i}`,
         challenge: a.challenge,
         turnMode: a.turnMode ?? challengeById(content, a.challenge)?.turnMode ?? content.config.defaultTurnMode,
