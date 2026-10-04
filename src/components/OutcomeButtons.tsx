@@ -40,7 +40,7 @@ export function OutcomeButtons({ challenge, team, compact = false }: { challenge
             onClick={() => dispatch({ type: 'RESOLVE', teamId: team.id, outcome: key })}
             className={`rounded-xl border border-line-strong bg-panel/70 font-semibold transition hover:bg-panel-2 ${compact ? 'px-2 py-2 text-sm' : 'px-4 py-4 text-lg'}`}
             style={{ color: meta.color }}
-            title={outcome?.criteria ?? outcome?.feedback}
+            title={outcome?.label}
           >
             {meta.icon} {outcome?.label ?? meta.label}
           </button>

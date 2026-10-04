@@ -199,7 +199,7 @@ function SharedResolution({ challenge, teams }: { challenge: Challenge; teams: T
                         onClick={() => dispatch({ type: 'RESOLVE', teamId: team.id, outcome: key })}
                         className="min-h-9 rounded-lg border border-line-strong bg-panel/70 px-1.5 py-1 text-sm leading-tight font-semibold transition hover:bg-panel-2"
                         style={{ color: meta.color }}
-                        title={o?.criteria ?? o?.label}
+                        title={o?.label}
                       >
                         {meta.icon} {o?.label ?? meta.label}
                       </button>

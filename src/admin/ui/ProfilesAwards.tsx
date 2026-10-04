@@ -1,5 +1,6 @@
 import type { AwardMetric } from '../../engine/types'
 import { useAdmin } from '../AdminContext'
+import { describeCondition } from '../describe'
 import { itemStatus } from '../diff'
 import { moveById, restoreItem, uniqueId } from '../operations'
 import { ConditionEditor } from './ConditionEditor'
@@ -50,6 +51,7 @@ export function ProfilesSection() {
             }
             actions={
               <>
+                <Toggle checked={p.active !== false} onChange={(v) => up((x) => void (x.active = v))} label="Activo" />
                 <SmallButton variant="ghost" title="Subir prioridad" onClick={() => edit((d) => void (d.profiles = moveById(d.profiles, p.id, -1)))}>↑</SmallButton>
                 <SmallButton variant="ghost" title="Bajar prioridad" onClick={() => edit((d) => void (d.profiles = moveById(d.profiles, p.id, 1)))}>↓</SmallButton>
                 {status !== 'same' && (
@@ -60,7 +62,13 @@ export function ProfilesSection() {
               </>
             }
           >
-            <div className="grid gap-3 md:grid-cols-[1fr_6rem]">
+            <p className="text-sm">
+              <span className="text-muted">Se asigna si: </span>
+              {p.match ? describeCondition(p.match, draft) : 'no cumple ningún perfil anterior (respaldo)'}
+            </p>
+            <details className="mt-2">
+              <summary className="cursor-pointer text-sm font-semibold text-accent">Editar perfil</summary>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
               <Field label="Nombre">
                 <TextInput value={p.title} onChange={(v) => up((x) => void (x.title = v))} />
               </Field>
@@ -76,9 +84,8 @@ export function ProfilesSection() {
               <Field label="Riesgo (opcional)">
                 <TextArea rows={2} value={p.risk} onChange={(v) => up((x) => void (x.risk = v || undefined))} />
               </Field>
-            </div>
+              </div>
             <div className="mt-3 flex flex-wrap gap-6">
-              <Toggle checked={p.active !== false} onChange={(v) => up((x) => void (x.active = v))} label="Activo" />
               <Toggle
                 checked={!p.match}
                 onChange={(v) => up((x) => void (x.match = v ? undefined : { indicator: draft.indicators[0]?.id ?? '', op: '>=', value: 70 }))}
@@ -91,6 +98,7 @@ export function ProfilesSection() {
                 <ConditionEditor value={p.match} content={draft} onChange={(v) => up((x) => void (x.match = v))} />
               </div>
             )}
+            </details>
           </Card>
         )
       })}

@@ -26,6 +26,7 @@ desplegar producción automáticamente.
 | **https://amv-juego-gerencial.vercel.app** | **La que se PROYECTA.** Juego, tablero, retos, eventos y resultados. |
 | **https://amv-juego-gerencial.vercel.app/facilitador** | **La del FACILITADOR** (tu laptop o tablet): todos los controles, notas privadas y números. |
 | **https://amv-juego-gerencial.vercel.app/privado** | **Vista privada**: figura del reto 02 y tarjetas secretas del reto 06. Nunca en el proyector. |
+| **https://amv-juego-gerencial.vercel.app/admin** | **Administración de contenido**: revisar y editar retos, eventos, perfiles… antes de jugar. |
 
 Las tres vistas se sincronizan solas **si están abiertas en el mismo navegador del mismo equipo**
 (comparten el almacenamiento local). En un dispositivo distinto (p. ej. tu teléfono) la partida es
@@ -47,6 +48,58 @@ independiente. El panel también se abre dentro del proyector con el botón 🎛
    *Cargar respaldo*. Recomendado al terminar cada bloque horario.
 8. **Reiniciar**: panel → *Partida* → **Reiniciar todo** (pide confirmación y borra la partida).
 
+## Administración de contenido
+
+**Dónde:** https://amv-juego-gerencial.vercel.app/admin (o “⚙️ Administrar contenido” en la portada; el
+enlace no aparece durante una partida). Sin login. Pensado para computadora; usable en tablet.
+
+**Qué se edita:** todo el contenido sin tocar código.
+- **Retos** (pestañas): *General* (título, número, id, hora, capítulo, tipo, duración, modo, activo,
+  presencial, en agenda) · *Contenido público* (narrativa, pregunta, listas, tabla, instrucciones,
+  preguntas de seguimiento, mensaje de cierre, textos condicionados) · *Opciones* (agregar, borrar,
+  reordenar, duplicar; texto, feedback, tono, notas; resultados calificados; bonos) · *Evaluación*
+  (respuesta deseada: recomendada/aceptable/desaconsejada, criterios de éxito/parcial/fallo, puntos a
+  observar, notas privadas) · *Efectos* (tabla de números por indicador) · *Banderas y consecuencias*
+  (banderas que activa/quita, eventos diferidos con retraso, retos insertados, banderas manuales) ·
+  *Ver cambios* (diferencias con el original).
+- **Eventos**: tipo, tono, alcance, una sola vez, condición, momento (desde/hasta reto), efectos,
+  respuestas, notas, quién lo programa.
+- **Perfiles** (el orden importa; ↑↓ para reordenar; respaldo), **reconocimientos**, **indicadores**
+  (inicial, mín, máx, alerta, etiqueta, ícono, color), **banderas** y **configuración general**.
+- Listado con búsqueda y filtros (tipo, competencia, modo, global/multi/equipo, activo, presencial,
+  con consecuencias, con banderas, modificados). Marca **Modificado** y **Nuevo** en cada elemento.
+- **Vista previa** en cada reto/evento: *como participante* (la pantalla real del proyector, con 2, 4
+  o 6 equipos), *como facilitador* (efectos, respuesta deseada, notas, banderas, criterios) y *como admin*.
+- **Duplicar** reto/evento: crea una copia **inactiva** con id nuevo (actívala para usarla).
+- **Activar/desactivar**: lo inactivo sigue en admin pero no entra en nuevas partidas.
+
+**Cómo se guarda (tres niveles):**
+1. **Base** — el contenido del código (`src/content`). Nunca se modifica desde la app.
+2. **Borrador** — lo que editas en /admin. **Autoguardado** en este navegador (estado: *Guardando…* /
+   *Guardado ✓*). Lleva versión local, fecha y número de cambios.
+3. **Snapshot** — copia congelada para la **próxima partida**.
+
+**Aplicar una configuración:** botón **“USAR ESTA CONFIGURACIÓN EN LA PRÓXIMA PARTIDA”**. Antes valida:
+los **errores** (ids repetidos, retos sin título, opciones vacías, banderas o indicadores inexistentes,
+condiciones inválidas, retos activos sin narrativa…) bloquean; las **advertencias** no. La portada
+indica si la siguiente partida usará la configuración personalizada o la original.
+
+**¿Y la partida ya iniciada?** Al empezar, cada partida guarda **su propia copia** de la configuración.
+Lo que cambies después en /admin (incluso un snapshot nuevo) **no la altera**, ni al recargar. Se
+aplica a la siguiente partida.
+
+**Restaurar:** “↺ Restaurar este elemento” en cada reto/evento/perfil, o en *Versiones e importar* →
+“Restaurar toda la configuración original” (pide confirmación; no toca el snapshot). “Quitar snapshot”
+hace que la próxima partida vuelva a usar el original.
+
+**Exportar / importar:** en *Versiones e importar*. Exporta un JSON con retos, eventos, perfiles,
+reconocimientos, indicadores, banderas y configuración general. Al importar se valida el esquema; si
+hay problemas se listan y **no se aplica nada**.
+
+> Importante: todo vive en el navegador (localStorage). Para llevar tu configuración a otra
+> computadora (p. ej. la del evento): **Exportar** aquí → **Importar** allá → **Usar en la próxima partida**.
+> Para dejarla como contenido oficial del repositorio, pásame el JSON exportado.
+
 ## Cómo correrlo en local
 
 Requisitos: Node.js 20 o superior.
@@ -62,7 +115,7 @@ Abre http://localhost:5173. Otros comandos:
 |---|---|
 | `npm run build` | Revisa tipos y genera la versión de producción en `dist/` |
 | `npm run preview` | Sirve la versión de producción |
-| `npm test` | 59 pruebas: motor, contenido, escenarios, persistencia y una simulación corta |
+| `npm test` | 82 pruebas: motor, contenido, escenarios, persistencia, administración, privacidad y una simulación corta |
 | `npm run balance` | Simula 5 000 partidas y reescribe `docs/BALANCE_REPORT.md` |
 | `npm run lint` | Linter (oxlint) |
 
@@ -123,6 +176,7 @@ src/
 │   └── engine.test.ts
 ├── state/                proveedor React, deshacer (rootReducer), persistencia, hook useGame
 ├── sim/                  simulador de balance (npm run balance)
+├── admin/                /admin: borrador, snapshot, validación, diff, operaciones y editores (ui/)
 ├── components/           GameBoard, TeamCard, IndicatorBar, ChallengeCard, DecisionOptions,
 │   │                     OutcomeButtons, Timer, EventModal, Scoreboard, FinalResults…
 │   └── facilitator/      secciones del panel del facilitador
@@ -279,17 +333,16 @@ un caso límite, no un estilo real.
 
 **Terminado y verificado**
 
-- Build, lint y **59 pruebas** en verde (motor, contenido, retos multi-equipo, reto 14, consecuencias,
-  tarjetas de negociación, umbrales y perfiles, deshacer, localStorage, sincronización entre ventanas,
-  restauración tras recarga y partidas completas con 2–6 equipos).
+- Build, lint y **82 pruebas** en verde (motor, contenido, retos multi-equipo, consecuencias, tarjetas
+  de negociación, umbrales y perfiles, deshacer, localStorage, sincronización entre ventanas,
+  restauración tras recarga, partidas completas con 2–6 equipos, **administración** —guardar,
+  restaurar, duplicar, activar, exportar, importar, esquema, snapshot, partida congelada, vista previa,
+  orden de perfiles, referencias de banderas— y **privacidad del proyector**).
+- **/admin** probado en el navegador: edición, autoguardado, cambios, vista previa, duplicar,
+  desactivar, snapshot, partida con snapshot y cambios posteriores sin afectarla.
 - Simulación de balance: 5 000 partidas con 5 estilos de juego.
-- Partida completa manual con 4 equipos (configuración → retos 01–15 → eventos → El Consejo →
-  resultados → cierre → reinicio), sin errores de consola.
-- Proyector 1920×1080 con 2, 4 y 6 equipos: ningún reto hace scroll (salvo El Consejo, a propósito,
-  por el expediente).
-- **Desplegado en producción** en https://amv-juego-gerencial.vercel.app (HTTPS, rutas SPA,
-  recarga en `/facilitador` y `/privado` funciona). Sincronización proyector ↔ facilitador probada en
-  el dominio desplegado.
+- Proyector 1920×1080 con 2, 4 y 6 equipos sin scroll (salvo El Consejo, a propósito).
+- Desplegado en https://amv-juego-gerencial.vercel.app (estático, HTTPS, deploy automático desde `main`).
 
 **Provisional**
 

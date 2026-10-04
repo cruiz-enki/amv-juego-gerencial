@@ -78,7 +78,31 @@ export function itemStatus(base: GameContent, draft: GameContent, section: ItemS
   return diffItem(b, findItem(draft, section, id)).length ? 'modified' : 'same'
 }
 
-/** Número total de campos distintos respecto al contenido base. */
+const SECTIONS: ItemSection[] = ['challenges', 'events', 'profiles', 'awards', 'indicators', 'flags']
+
+/**
+ * Campos distintos respecto al contenido base, comparando cada elemento por su id
+ * (así insertar o reordenar no cuenta como cambiar todo lo que sigue).
+ * Un elemento nuevo o eliminado cuenta como 1; un cambio de orden, también.
+ */
 export function countChanges(base: GameContent, draft: GameContent): number {
-  return diffItem(base, draft).length
+  let total = 0
+  for (const section of SECTIONS) {
+    const b = base[section] as { id: string }[]
+    const d = draft[section] as { id: string }[]
+    for (const item of d) {
+      const original = b.find((x) => x.id === item.id)
+      total += original ? diffItem(original, item).length : 1
+    }
+    total += b.filter((x) => !d.some((y) => y.id === x.id)).length
+    const order = (list: { id: string }[]) => list.filter((x) => b.some((y) => y.id === x.id) && d.some((y) => y.id === x.id)).map((x) => x.id).join()
+    if (section === 'profiles' && order(b) !== order(d)) total += 1
+  }
+  const { agenda: agendaB, ...configB } = base.config
+  const { agenda: agendaD, ...configD } = draft.config
+  total += diffItem(configB, configD).length
+  const kept = (list: typeof agendaB) => list.map((a) => a.challenge).filter((id) => agendaB.some((x) => x.challenge === id) && agendaD.some((x) => x.challenge === id)).join()
+  if (kept(agendaB) !== kept(agendaD)) total += 1
+  total += diffItem(base.chapters, draft.chapters).length + diffItem(base.categories, draft.categories).length
+  return total
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { SoundDirector } from './audio/SoundDirector'
 import { EventModal } from './components/EventModal'
 import { FacilitatorDrawer } from './components/facilitator/FacilitatorDrawer'
@@ -15,11 +15,13 @@ import { PrivateView } from './screens/PrivateView'
 import { ScoreboardScreen } from './screens/ScoreboardScreen'
 import { SetupScreen } from './screens/SetupScreen'
 import { useGame } from './state/useGame'
-import { AdminApp } from './admin/AdminApp'
 
 type Route = 'projector' | 'facilitator' | 'private' | 'admin'
 
 /** Rutas: /facilitador y /privado (también aceptan #/facilitador y #/privado). */
+// /admin se carga aparte: el proyector no descarga el código del editor.
+const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })))
+
 function readRoute(): Route {
   const path = `${window.location.pathname}${window.location.hash}`.toLowerCase()
   if (window.location.pathname.toLowerCase().startsWith('/admin')) return 'admin'
@@ -46,7 +48,12 @@ export default function App() {
   const route = useRoute()
   if (route === 'facilitator') return <FacilitatorWindow />
   if (route === 'private') return <PrivateView />
-  if (route === 'admin') return <AdminApp />
+  if (route === 'admin')
+    return (
+      <Suspense fallback={<p className="p-8 text-muted">Cargando administración…</p>}>
+        <AdminApp />
+      </Suspense>
+    )
   return <ProjectorApp />
 }
 
