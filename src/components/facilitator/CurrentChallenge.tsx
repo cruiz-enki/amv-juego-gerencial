@@ -1,6 +1,6 @@
 import { bonusesUsed } from '../../engine/reducer'
 import { currentChallenge, currentStep, resolutionFor, resolvers } from '../../engine/selectors'
-import { challengeTypeMeta, OPTION_LETTERS, outcomeMeta, outcomeTone, turnModeLabel } from '../../lib/labels'
+import { challengeTypeMeta, OPTION_LETTERS, outcomeMeta, outcomeTone, recommendationMeta, turnModeLabel } from '../../lib/labels'
 import { useGame } from '../../state/useGame'
 import { TeamBadge } from '../TeamBadge'
 import { Button } from '../ui/Button'
@@ -66,7 +66,14 @@ export function CurrentChallenge() {
         <ul className="grid gap-0.5">
           {challenge.options?.map((o, i) => (
             <li key={o.id}>
-              <b>{OPTION_LETTERS[i]}</b> <NumericEffects effect={o.effect} />
+              <b>{OPTION_LETTERS[i]}</b>{' '}
+              {o.recommendation && (
+                <span className={`mr-1 text-xs font-semibold ${o.recommendation === 'recommended' ? 'text-success' : o.recommendation === 'discouraged' ? 'text-danger' : 'text-accent'}`}>
+                  {recommendationMeta[o.recommendation].label}
+                </span>
+              )}
+              <NumericEffects effect={o.effect} />
+              {o.notes && <span className="block text-xs text-muted">📝 {o.notes}</span>}
             </li>
           ))}
           {outcomes.map(([key, o]) => (

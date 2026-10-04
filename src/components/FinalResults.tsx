@@ -32,6 +32,8 @@ export function FinalResults() {
                     {s.profile.icon} {s.profile.title}
                   </p>
                   <p className="text-text/80">{s.profile.description}</p>
+                  {s.profile.strengths && <p className="mt-1 text-sm text-success">💪 {s.profile.strengths}</p>}
+                  {s.profile.risk && <p className="mt-1 text-sm text-accent-2">⚠️ {s.profile.risk}</p>}
                 </div>
               )}
               <div className="grid gap-2">

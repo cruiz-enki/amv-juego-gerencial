@@ -35,7 +35,7 @@ export function EventControls() {
         <label className="grid gap-1 text-sm text-muted">
           Evento
           <select value={eventId} onChange={(e) => setEventId(e.target.value)} className="rounded-lg border border-line-strong bg-deep px-2 py-2 text-text">
-            {content.events.map((ev) => (
+            {content.events.filter((ev) => ev.active !== false).map((ev) => (
               <option key={ev.id} value={ev.id}>
                 {toneMeta[ev.tone].icon} {ev.title} · {eventKindLabel[ev.kind]}
               </option>

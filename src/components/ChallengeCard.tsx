@@ -53,6 +53,10 @@ export function ChallengeCard({ challenge, injected = false, dense = false, team
       </h1>
       <p className={`max-w-[62ch] leading-relaxed text-text/90 text-pretty ${dense ? 'mt-3' : 'mt-5'} ${text}`}>{challenge.narrative}</p>
 
+      {challenge.question && (
+        <p className={`max-w-[62ch] font-display font-semibold text-accent ${dense ? 'mt-2 text-xl' : 'mt-4 text-2xl'}`}>{challenge.question}</p>
+      )}
+
       {challenge.items && challenge.items.length > 0 && (
         <ol className={`gap-x-8 ${dense ? 'mt-3' : 'mt-5'} ${challenge.items.length > 5 ? 'lg:columns-2' : ''}`}>
           {challenge.items.map((item, i) => (

@@ -1,4 +1,4 @@
-import type { ChallengeType, EventKind, EventTone, Outcome, OutcomeTone, PublicEffects, TurnMode } from '../engine/types'
+import type { ChallengeType, EventKind, EventTone, OptionRecommendation, Outcome, OutcomeTone, PublicEffects, TurnMode } from '../engine/types'
 
 export const challengeTypeMeta: Record<ChallengeType, { label: string; icon: string; color: string }> = {
   decision: { label: 'Decisión', icon: '⚖️', color: '#38e1ff' },
@@ -55,4 +55,11 @@ export const publicEffectsLabel: Record<PublicEffects, string> = {
 export function arrows(delta: number): string {
   const n = Math.abs(delta) >= 8 ? 3 : Math.abs(delta) >= 4 ? 2 : 1
   return (delta > 0 ? '▲' : '▼').repeat(n)
+}
+
+/** Respuesta deseada (privada). */
+export const recommendationMeta: Record<OptionRecommendation, { label: string; tone: 'success' | 'accent' | 'danger' }> = {
+  recommended: { label: '⭐ Recomendada', tone: 'success' },
+  acceptable: { label: '👍 Aceptable', tone: 'accent' },
+  discouraged: { label: '⚠️ Desaconsejada', tone: 'danger' },
 }

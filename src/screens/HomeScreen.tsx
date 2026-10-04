@@ -2,7 +2,7 @@ import { Button } from '../components/ui/Button'
 import { useGame } from '../state/useGame'
 
 export function HomeScreen() {
-  const { content, dispatch } = useGame()
+  const { content, dispatch, contentSource, snapshot } = useGame()
   const { config } = content
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden px-6 py-12">
@@ -26,8 +26,15 @@ export function HomeScreen() {
           Nueva partida ▶
         </Button>
         <p className="mt-6 text-sm text-faint">
-          {config.agenda.length} retos · {content.events.length} eventos posibles · ~{config.targetMinutes} min
+          {config.agenda.filter((a) => content.challenges.find((c) => c.id === a.challenge)?.active !== false).length} retos ·{' '}
+          {content.events.filter((e) => e.active !== false).length} eventos posibles · ~{config.targetMinutes} min ·{' '}
+          {contentSource === 'snapshot' && snapshot
+            ? `configuración personalizada del ${new Date(snapshot.createdAt).toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`
+            : 'configuración original'}
         </p>
+        <a href="/admin" className="mt-4 inline-block text-sm text-muted underline-offset-4 hover:text-accent hover:underline">
+          ⚙️ Administrar contenido
+        </a>
       </div>
     </main>
   )
