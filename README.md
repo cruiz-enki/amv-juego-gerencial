@@ -9,7 +9,7 @@ la conduce un facilitador. Duración objetivo: ~90 minutos.
 > indicadores (Resultados, Equipo, Liderazgo, Recursos, Reputación) y algunas dejan
 > consecuencias que aparecen varios turnos después.
 
-El contenido (15 retos, 11 eventos, 6 perfiles + respaldo, 7 reconocimientos) viene del documento
+El contenido (17 retos —15 del documento + 2 de inteligencia emocional—, 12 eventos, 6 perfiles + respaldo, 7 reconocimientos) viene del documento
 "Punto Crítico" entregado por Carlos y vive en `src/content/`.
 
 ---
@@ -115,7 +115,7 @@ Abre http://localhost:5173. Otros comandos:
 |---|---|
 | `npm run build` | Revisa tipos y genera la versión de producción en `dist/` |
 | `npm run preview` | Sirve la versión de producción |
-| `npm test` | 82 pruebas: motor, contenido, escenarios, persistencia, administración, privacidad y una simulación corta |
+| `npm test` | 89 pruebas: motor, contenido, escenarios, persistencia, administración, privacidad y una simulación corta |
 | `npm run balance` | Simula 5 000 partidas y reescribe `docs/BALANCE_REPORT.md` |
 | `npm run lint` | Linter (oxlint) |
 
@@ -263,7 +263,8 @@ En `src/content/events.ts`:
   tone: 'negative',                 // positive | negative | neutral | crisis
   narrative: '…',
   trigger: { all: [ { indicator: 'reputacion', op: '<', value: 40 }, { flag: 'oculto-falla' } ] },
-  minStep: 3,                       // no antes del paso 3
+  afterChallenge: 'el-recorte',     // sólo después de terminar este reto
+  untilChallenge: 'el-rumor',       // y antes de que termine este otro (opcional)
   effect: { indicators: { resultados: -5 }, injectChallenge: 'llamada-del-cliente' },
 }
 ```
@@ -275,7 +276,8 @@ por defecto cada evento se dispara una vez por equipo, `repeatable: true` lo cam
 
 Cada evento declara `kind` (`conditional`, `consequence` o `surprise`), puede tener `question`,
 `takeaway` y `options` (respuestas que se suman al efecto automático, p. ej. "gastar Recursos para
-recuperar a la persona"). `maxStep` limita hasta cuándo puede aparecer.
+recuperar a la persona"). El momento se ancla a **retos** (`afterChallenge` / `untilChallenge`), no a
+números de paso, para que insertar o reordenar retos no descuadre los eventos.
 
 **Consecuencias diferidas:** en el efecto de una opción usa
 `schedule: [{ event: 'clima-tenso', afterSteps: 2 }]` y el evento aparecerá dos pasos después.
@@ -322,6 +324,8 @@ Todos los cambios numéricos respecto al documento original:
 | Orden de perfiles | orden del documento | Equilibrado → Negociador → Constructor → Estratega → Ejecutor → Bombero | sin esto Negociador quedaba "tapado" (0%) |
 | Reto 14 | sólo registraba el camino | A/B/C con efectos preconfigurados + argumento como bono | indicado por Carlos |
 | `riesgo_proveedor` | sin efecto | −3 Resultados en el primer problema de proveedor (una vez) | indicado por Carlos |
+| Inteligencia emocional (iteración 5) | implícita | competencia propia con 5 subcompetencias; retos **IE1** “No eres tú, pero te pega” (09:40) e **IE2** “La persona difícil” (13:40); evento “La factura emocional”; etiquetas en retos 03, 07, 09, 11 y 12 | propuesta de Carlos |
+| Retos 05, 06, 08 y 13 · éxito (balance v3) | Liderazgo +3 | Liderazgo +1 | los retos de IE suman Liderazgo y éste volvía a saturarse; sin el ajuste “Equipo equilibrado” quedaba imposible |
 | `promesa_sin_informacion` | sin efecto | evento "La promesa regresa" (−6 Lid, −5 Eq, −4 Rep), una vez | indicado por Carlos |
 
 Resultado (5 000 partidas, ver `docs/BALANCE_REPORT.md`): todos los perfiles son alcanzables
@@ -333,7 +337,7 @@ un caso límite, no un estilo real.
 
 **Terminado y verificado**
 
-- Build, lint y **82 pruebas** en verde (motor, contenido, retos multi-equipo, consecuencias, tarjetas
+- Build, lint y **89 pruebas** en verde (motor, contenido, retos multi-equipo, consecuencias, tarjetas
   de negociación, umbrales y perfiles, deshacer, localStorage, sincronización entre ventanas,
   restauración tras recarga, partidas completas con 2–6 equipos, **administración** —guardar,
   restaurar, duplicar, activar, exportar, importar, esquema, snapshot, partida congelada, vista previa,

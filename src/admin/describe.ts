@@ -25,6 +25,20 @@ export function describeCondition(cond: Condition | undefined, c: GameContent): 
   return 'condición desconocida'
 }
 
+/** Momento de aparición de un evento en lenguaje natural. */
+export function describeTiming(ev: { afterChallenge?: string; untilChallenge?: string; minStep?: number; maxStep?: number }, c: GameContent): string {
+  const name = (id: string) => {
+    const x = c.challenges.find((y) => y.id === id)
+    return x ? `${x.code ?? ''} "${x.title}"` : id
+  }
+  const parts: string[] = []
+  if (ev.afterChallenge) parts.push(`después del reto ${name(ev.afterChallenge)}`)
+  if (ev.untilChallenge) parts.push(`antes de que termine el reto ${name(ev.untilChallenge)}`)
+  if (ev.minStep !== undefined) parts.push(`desde el paso ${ev.minStep + 1}`)
+  if (ev.maxStep !== undefined) parts.push(`hasta el paso ${ev.maxStep + 1}`)
+  return parts.length ? parts.join(', ') : 'en cualquier momento'
+}
+
 export function hasConsequences(effects: (Effect | undefined)[]): boolean {
   return effects.some((e) => !!e && ((e.schedule?.length ?? 0) > 0 || !!e.injectChallenge))
 }

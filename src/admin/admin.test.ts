@@ -99,7 +99,7 @@ describe('activar / desactivar', () => {
   it('un reto inactivo no entra en nuevas partidas pero sigue existiendo', () => {
     const c = setActive(fresh(), 'challenges', 'mapa-del-terreno', false)
     const s = createReducer(c)(emptyState(0), { type: 'START_GAME', teams, now: 1 })
-    expect(s.agenda).toHaveLength(14)
+    expect(s.agenda).toHaveLength(16)
     expect(s.agenda.some((a) => a.challenge === 'mapa-del-terreno')).toBe(false)
     expect(c.challenges.some((x) => x.id === 'mapa-del-terreno')).toBe(true)
   })
@@ -211,7 +211,7 @@ describe('snapshot', () => {
     snap.challenges[2].title = 'Versión AMV'
     snap.challenges[2].options![0].effect.indicators = { equipo: -10 }
     let g = rootReducer({ state: emptyState(0), past: [] }, { type: '@START', now: 1, teams, content: snap })
-    expect(g.state.agenda).toHaveLength(14)
+    expect(g.state.agenda).toHaveLength(16)
     expect(g.content?.challenges[2].title).toBe('Versión AMV')
     // Después de iniciar, el admin cambia el contenido y crea otro snapshot.
     snap.challenges[2].title = 'CAMBIO POSTERIOR'

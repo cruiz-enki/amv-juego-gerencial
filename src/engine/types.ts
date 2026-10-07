@@ -38,6 +38,8 @@ export interface CategoryDef {
   label: string
   icon: string
   description?: string
+  /** Subcompetencia de otra categoría (p. ej. Empatía → Inteligencia emocional). */
+  parent?: CategoryId
 }
 
 export interface ChapterDef {
@@ -294,6 +296,13 @@ export interface GameEvent {
   minStep?: number
   /** No se dispara después de este paso. */
   maxStep?: number
+  /**
+   * Anclas por reto (preferibles a minStep/maxStep porque no se descuadran al
+   * insertar o reordenar retos): sólo aparece cuando `afterChallenge` ya terminó…
+   */
+  afterChallenge?: ChallengeId
+  /** …y mientras `untilChallenge` todavía no termina. */
+  untilChallenge?: ChallengeId
   facilitatorNotes?: string
 }
 

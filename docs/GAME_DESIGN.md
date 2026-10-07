@@ -1,6 +1,6 @@
 # Documento de diseño — Punto Crítico
 
-> Estado: base funcional con el contenido v1 del documento "Punto Crítico" (15 retos).
+> Estado: contenido v1 del documento "Punto Crítico" (15 retos) + 2 retos de inteligencia emocional.
 
 ## 1. Concepto
 
@@ -102,7 +102,8 @@ Aparecen como modal sobre el proyector y el facilitador decide **Aplicar** o **D
 - **Manuales / sorpresa**: el facilitador los activa para un equipo o para todos (auditoría, apagón…).
 
 Reglas anti-saturación: máximo un evento condicional por equipo por paso; por defecto una vez por
-equipo (`repeatable` lo cambia); `minStep` evita disparos demasiado tempranos.
+equipo (`repeatable` lo cambia); las anclas `afterChallenge` / `untilChallenge` fijan el momento por reto
+(no por número de paso), así que sobreviven a inserciones y reordenamientos.
 
 ## 8. Turnos
 

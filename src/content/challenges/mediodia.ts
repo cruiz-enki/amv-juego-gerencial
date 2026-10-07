@@ -25,7 +25,8 @@ export const middayChallenges: Challenge[] = [
     ],
     secret: negotiationSecret,
     outcomes: {
-      success: { label: 'Cumplen su objetivo', effect: { indicators: { resultados: 8, recursos: 5, liderazgo: 3 } } },
+      // balance v3: liderazgo 3 → 1
+      success: { label: 'Cumplen su objetivo', effect: { indicators: { resultados: 8, recursos: 5, liderazgo: 1 } } },
       partial: { label: 'Cumplen parcialmente', effect: { indicators: { resultados: 4 } } },
       fail: { label: 'No cumplen', effect: { indicators: { resultados: -3 } } },
     },
@@ -47,7 +48,7 @@ export const middayChallenges: Challenge[] = [
     clock: '12:10',
     title: 'Ventas vs. Operaciones',
     type: 'open',
-    categories: ['conflictos', 'comunicacion', 'liderazgo'],
+    categories: ['conflictos', 'comunicacion', 'liderazgo', 'ie-empatia'],
     chapter: 'mediodia',
     minutes: 5,
     durationSec: 180,
@@ -97,7 +98,7 @@ export const middayChallenges: Challenge[] = [
     outcomes: {
       success: {
         label: 'Con criterios y ponderación',
-        effect: { indicators: { liderazgo: 3, resultados: 5, recursos: 4 } },
+        effect: { indicators: { liderazgo: 1, resultados: 5, recursos: 4 } }, // balance v3: liderazgo 3 → 1
       },
       'solo-precio': {
         label: 'Sólo por precio',
@@ -137,7 +138,7 @@ export const middayChallenges: Challenge[] = [
     clock: '13:20',
     title: 'El rumor',
     type: 'decision',
-    categories: ['liderazgo', 'comunicacion'],
+    categories: ['liderazgo', 'comunicacion', 'ie-autorregulacion'],
     chapter: 'mediodia',
     turnMode: 'all-teams',
     minutes: 4,

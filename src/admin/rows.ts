@@ -15,6 +15,8 @@ export interface Row {
   typeKey: string
   minutes?: number
   categories: string[]
+  /** Categorías + sus categorías padre (para filtrar). */
+  categoryKeys: string[]
   mode: string
   modeKey: string
   scope: 'global' | 'multi' | 'team'
@@ -48,6 +50,7 @@ function challengeRow(c: Challenge, content: GameContent, base: GameContent): Ro
     typeKey: c.type,
     minutes: c.minutes,
     categories: c.categories,
+    categoryKeys: [...new Set(c.categories.flatMap((id) => [id, content.categories.find((x) => x.id === id)?.parent ?? id]))],
     mode: turnModeLabel[mode],
     modeKey: mode,
     scope: mode === 'active-team' ? 'team' : mode === 'interaction' ? 'global' : 'multi',
@@ -75,6 +78,7 @@ function eventRow(e: GameEvent, content: GameContent, base: GameContent): Row {
     type: eventKindLabel[e.kind],
     typeKey: e.kind,
     categories: [],
+    categoryKeys: [],
     mode: e.effect.target === 'all' ? 'Todos los equipos' : 'Un equipo',
     modeKey: e.effect.target === 'all' ? 'all' : 'team',
     scope: e.effect.target === 'all' ? 'global' : 'team',
@@ -124,7 +128,7 @@ export function applyFilters(rows: Row[], f: Filters): Row[] {
       (!q || r.search.includes(q)) &&
       (!f.kind || r.kind === f.kind) &&
       (!f.type || r.typeKey === f.type) &&
-      (!f.category || r.categories.includes(f.category)) &&
+      (!f.category || r.categoryKeys.includes(f.category)) &&
       (!f.mode || r.modeKey === f.mode) &&
       (!f.scope || r.scope === f.scope) &&
       yes(f.active, r.active) &&

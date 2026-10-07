@@ -145,6 +145,11 @@ function settleStep(state: GameState, content: GameContent, now: number): GameSt
   return next
 }
 
+/** ¿Ese reto ya se jugó (o se saltó) en esta partida? */
+function challengeFinished(state: GameState, challenge: string): boolean {
+  return state.agenda.some((s) => s.challenge === challenge && s.status !== 'pending')
+}
+
 /** Revisa consecuencias diferidas y eventos condicionales al iniciar un paso. */
 function queueEvents(state: GameState, content: GameContent): GameState {
   let next = state
@@ -165,6 +170,8 @@ function queueEvents(state: GameState, content: GameContent): GameState {
       if (!e.trigger || !isActive(e)) return false
       if ((e.minStep ?? 0) > next.stepIndex) return false
       if (e.maxStep !== undefined && e.maxStep < next.stepIndex) return false
+      if (e.afterChallenge && !challengeFinished(next, e.afterChallenge)) return false
+      if (e.untilChallenge && challengeFinished(next, e.untilChallenge)) return false
       if (!e.repeatable && fired.includes(`${e.id}:${team.id}`)) return false
       if (queue.some((q) => q.event === e.id && q.teamId === team.id)) return false
       return evaluate(e.trigger, team, next)

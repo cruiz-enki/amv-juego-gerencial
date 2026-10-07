@@ -2,11 +2,12 @@ import type { GameEvent } from '../engine/types'
 
 /**
  * Eventos — fuente: documento "Punto Crítico" (contenido v1).
- * - conditional: el motor revisa `trigger` al iniciar cada paso (minStep/maxStep acotan cuándo).
+ * - conditional: el motor revisa `trigger` al iniciar cada reto (las anclas acotan cuándo).
  * - consequence: lo programa una decisión previa (`schedule` en el efecto de una opción o bono).
  * - surprise:    sólo lo activa el facilitador.
  *
- * Índices de paso: el reto 01 es el paso 0, el reto 05 el paso 4, etc.
+ * El momento se ancla a retos (afterChallenge / untilChallenge), no a números de paso,
+ * para que insertar o reordenar retos en /admin no descuadre los eventos.
  */
 export const events: GameEvent[] = [
   {
@@ -17,9 +18,9 @@ export const events: GameEvent[] = [
     narrative: 'Tres personas diferentes acaban de decir: “Esto urge.” No todo puede ser prioridad.',
     question: '¿Qué criterio usarán para decidir qué realmente requiere atención inmediata?',
     trigger: { indicator: 'recursos', op: '<', value: 45 },
-    // Sólo justo después del reto 04.
-    minStep: 4,
-    maxStep: 4,
+    // Sólo justo después del reto 04 (antes de que termine el 05).
+    afterChallenge: 'cinco-pendientes',
+    untilChallenge: 'el-recorte',
     effect: { indicators: { recursos: -4 } },
     options: [
       { id: 'solida', label: 'Respuesta sólida', effect: { indicators: { liderazgo: 3 } } },
@@ -37,6 +38,17 @@ export const events: GameEvent[] = [
     takeaway: 'Lo que toleras también comunica.',
     effect: { indicators: { equipo: -7, liderazgo: -5 } },
     facilitatorNotes: 'Consecuencia diferida A: la programa la opción A del reto 03 (talento sin límites).',
+  },
+  {
+    id: 'la-factura-emocional',
+    title: 'La factura emocional',
+    kind: 'consequence',
+    tone: 'negative',
+    narrative:
+      'El colaborador al que respondiste de forma agresiva ahora evita acercarse a ti. Otro integrante comenta: “Mejor no le digas nada ahorita, viene de malas.”',
+    takeaway: 'El estado emocional de un líder también se convierte en información para el equipo.',
+    effect: { indicators: { equipo: -5, liderazgo: -4 } },
+    facilitatorNotes: 'Consecuencia de la opción A del reto IE1 (descarga emocional). Aparece 3 retos después.',
   },
   {
     id: 'proveedor-a-retraso',
@@ -74,7 +86,7 @@ export const events: GameEvent[] = [
       '¿Recuerdan a la persona que pidió hablar con ustedes a las 08:00? Acaba de comunicar que está considerando dejar el proyecto.',
     question: '¿Gastan 2 puntos de Recursos para abrir una conversación de recuperación?',
     trigger: { flag: 'persona_ignorada' },
-    minStep: 10,
+    afterChallenge: 'punto-critico',
     effect: { indicators: { equipo: -7, resultados: -4 } },
     options: [
       {
@@ -93,7 +105,7 @@ export const events: GameEvent[] = [
     tone: 'crisis',
     narrative: 'El cliente que solicitó atención esta mañana escala el problema con Dirección.',
     trigger: { flag: 'cliente_ignorado' },
-    minStep: 10,
+    afterChallenge: 'punto-critico',
     effect: { indicators: { reputacion: -8, resultados: -3 } },
     facilitatorNotes: 'Evento sorpresa 03: después del reto 10, si en el reto 01 ignoraron al cliente.',
   },
@@ -106,7 +118,7 @@ export const events: GameEvent[] = [
       'Dirección confirma que sí habrá ajustes en la organización. Hace unas horas aseguraron al equipo: “Nadie va a perder su empleo.” Ahora tienen que enfrentar esa conversación.',
     takeaway: 'Comunicar con tranquilidad no significa inventar certezas.',
     trigger: { flag: 'promesa_sin_informacion' },
-    minStep: 10,
+    afterChallenge: 'punto-critico',
     effect: { indicators: { liderazgo: -6, equipo: -5, reputacion: -4 } },
     facilitatorNotes: 'Consecuencia de la opción A del reto 09. Aparece después del reto 10, una sola vez.',
   },
@@ -131,7 +143,7 @@ export const events: GameEvent[] = [
       'Un cliente anterior recomienda su equipo con un nuevo prospecto. Su reputación les compra tiempo y confianza.',
     takeaway: 'La reputación también es un recurso.',
     trigger: { indicator: 'reputacion', op: '>=', value: 65 },
-    minStep: 14,
+    afterChallenge: 'decidir-sin-certeza',
     effect: { indicators: { resultados: 5, recursos: 3 } },
     facilitatorNotes: 'Evento sorpresa 04: después del reto 14, si Reputación ≥ 65.',
   },
@@ -143,7 +155,7 @@ export const events: GameEvent[] = [
     narrative: 'Los resultados continúan. Pero empiezan a aparecer errores, ausencias, fricción y retrabajo.',
     takeaway: 'El costo de descuidar al equipo rara vez aparece inmediatamente.',
     trigger: { indicator: 'equipo', op: '<=', value: 35 },
-    minStep: 14,
+    afterChallenge: 'decidir-sin-certeza',
     effect: { indicators: { resultados: -6, recursos: -5 } },
     facilitatorNotes: 'Evento sorpresa 05: después del reto 14, si Equipo ≤ 35.',
   },

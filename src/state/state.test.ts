@@ -53,7 +53,7 @@ describe('deshacer (Regresar)', () => {
   it('los bonos del facilitador también se pueden deshacer', () => {
     let g = started()
     g = act(g, { type: 'COMPLETE_STEP' } as never) // reto 02
-    for (let i = 0; i < 4; i++) g = act(g, { type: 'SKIP_STEP' } as never) // hasta el reto 06
+    for (let i = 0; i < 10 && g.state.agenda[g.state.stepIndex].challenge !== 'nadie-tiene-todo'; i++) g = act(g, { type: 'SKIP_STEP' } as never) // hasta el reto 06
     g = { state: { ...g.state, eventQueue: [] }, past: g.past }
     expect(g.state.agenda[g.state.stepIndex].challenge).toBe('nadie-tiene-todo')
     const before = g.state

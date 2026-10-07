@@ -37,7 +37,7 @@ export function ContentTable({ fixedKind }: { fixedKind?: Kind }) {
             ...(kind !== 'challenge' ? Object.entries(eventKindLabel).map(([k, l]) => ({ value: k, label: `Evento ${l.toLowerCase()}` })) : []),
           ]}
         />
-        {kind !== 'event' && <Select value={f.category} onChange={(category) => set({ category })} options={[{ value: '', label: 'Todas las competencias' }, ...draft.categories.map((c) => ({ value: c.id, label: c.label }))]} />}
+        {kind !== 'event' && <Select value={f.category} onChange={(category) => set({ category })} options={[{ value: '', label: 'Todas las competencias' }, ...draft.categories.map((c) => ({ value: c.id, label: c.parent ? `   └ ${c.label}` : c.parent === undefined && draft.categories.some((x) => x.parent === c.id) ? `${c.label} (todas)` : c.label }))]} />}
         {kind !== 'event' && <Select value={f.mode} onChange={(mode) => set({ mode })} options={[{ value: '', label: 'Todos los modos' }, ...Object.entries(turnModeLabel).map(([k, l]) => ({ value: k, label: l }))]} />}
         <Select value={f.scope} onChange={(scope) => set({ scope })} options={[{ value: '', label: 'Global / multi / equipo' }, { value: 'global', label: 'Global' }, { value: 'multi', label: 'Multi-equipo' }, { value: 'team', label: 'Equipo activo / un equipo' }]} />
         <Select value={f.active} onChange={(active) => set({ active })} options={[{ value: '', label: 'Activos e inactivos' }, { value: 'si', label: 'Sólo activos' }, { value: 'no', label: 'Sólo inactivos' }]} />

@@ -254,6 +254,16 @@ export function validateConfig(c: GameContent): Issue[] {
     if (ev.kind === 'conditional' && !ev.trigger) error(`${where}: es condicional pero no tiene condición.`, t)
     checkCondition(ev.trigger, where, t)
     if (ev.minStep !== undefined && ev.maxStep !== undefined && ev.minStep > ev.maxStep) error(`${where}: "desde el paso" es mayor que "hasta el paso".`, t)
+    for (const [label, anchor] of [['después del reto', ev.afterChallenge], ['hasta el reto', ev.untilChallenge]] as const) {
+      if (!anchor) continue
+      if (!ids.challenge.has(anchor)) error(`${where}: "${label}" apunta a un reto desconocido "${anchor}".`, t)
+      else if (ev.active !== false && (!activeChallenge(anchor) || !inAgenda.has(anchor)))
+        warn(`${where}: "${label}" usa un reto inactivo o fuera de la agenda; el evento nunca aparecerá.`, t)
+    }
+    if (ev.afterChallenge && ev.untilChallenge) {
+      const order = c.config.agenda.map((a) => a.challenge)
+      if (order.indexOf(ev.afterChallenge) > order.indexOf(ev.untilChallenge)) error(`${where}: el reto "después de" va después del reto "hasta".`, t)
+    }
   }
 
   c.profiles.forEach((p) => {

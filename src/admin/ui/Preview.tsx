@@ -10,7 +10,7 @@ import { ChallengeScreen } from '../../screens/ChallengeScreen'
 import { DashboardScreen } from '../../screens/DashboardScreen'
 import { GameContext, type GameContextValue } from '../../state/context'
 import { useAdmin, type PreviewRequest } from '../AdminContext'
-import { describeCondition } from '../describe'
+import { describeCondition, describeTiming } from '../describe'
 import { findItem } from '../diff'
 import { previewState } from '../preview'
 import { Tabs } from './EditorParts'
@@ -86,7 +86,7 @@ function EventFacilitatorView({ id }: { id: string }) {
       <ul className="grid gap-2 text-sm">
         <li><b>Tipo:</b> {eventKindLabel[ev.kind]} · {ev.effect.target === 'all' ? 'afecta a todos' : 'afecta a un equipo'} · {ev.repeatable ? 'repetible' : 'una vez por equipo'}</li>
         <li><b>Condición:</b> {ev.trigger ? describeCondition(ev.trigger, draft) : '—'}</li>
-        <li><b>Momento:</b> {ev.minStep !== undefined ? `desde el reto ${ev.minStep + 1}` : 'cualquiera'}{ev.maxStep !== undefined ? ` hasta el reto ${ev.maxStep + 1}` : ''}</li>
+        <li><b>Momento:</b> {describeTiming(ev, draft)}</li>
         <li><b>Efecto automático:</b> <NumericEffects effect={ev.effect} /></li>
         {ev.options?.map((o, i) => (
           <li key={o.id}><b>Respuesta {OPTION_LETTERS[i]}:</b> {o.label} <NumericEffects effect={o.effect} /></li>

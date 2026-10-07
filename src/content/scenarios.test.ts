@@ -71,6 +71,8 @@ describe('consecuencias', () => {
     s = run(s, { type: 'RESOLVE', teamId: 't1', optionId: 'a' }, { type: 'RESOLVE', teamId: 't2', optionId: 'c' }, { type: 'COMPLETE_STEP' })
     expect(s.eventQueue.some((q) => q.event === 'la-promesa-regresa')).toBe(false)
     s = dismissAll(s)
+    s = goTo(s, 'punto-critico')
+    expect(s.eventQueue.some((q) => q.event === 'la-promesa-regresa')).toBe(false)
     s = run(s, { type: 'COMPLETE_STEP' }) // termina el reto 10
     const promise = s.eventQueue.filter((q) => q.event === 'la-promesa-regresa')
     expect(promise.map((q) => q.teamId)).toEqual(['t1'])

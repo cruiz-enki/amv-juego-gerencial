@@ -16,6 +16,7 @@ export const flags: FlagDef[] = [
   { id: 'sin_mantenimiento', label: 'Eliminaron mantenimiento preventivo', showInDossier: true },
   { id: 'sin_apoyo', label: 'Eliminaron el apoyo temporal', showInDossier: true },
   { id: 'sin_tecnologia', label: 'Eliminaron la actualización tecnológica', showInDossier: true },
+  { id: 'descarga_emocional', label: 'Descargaron su enojo en un colaborador', showInDossier: true },
   { id: 'promesa_sin_informacion', label: 'Prometieron algo sin tener la información', showInDossier: true },
   { id: 'lanzamiento_anticipado', label: 'Lanzaron antes de tener certeza', showInDossier: true },
   { id: 'oportunidad_perdida', label: 'Sacrificaron la oportunidad por estabilidad', showInDossier: true },

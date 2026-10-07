@@ -115,7 +115,7 @@ export const morningChallenges: Challenge[] = [
     clock: '09:20',
     title: 'El talento difícil',
     type: 'decision',
-    categories: ['liderazgo', 'conflictos', 'equipos'],
+    categories: ['liderazgo', 'conflictos', 'equipos', 'ie-autorregulacion', 'ie-empatia'],
     chapter: 'arranque',
     turnMode: 'all-teams',
     minutes: 4,
@@ -151,7 +151,7 @@ export const morningChallenges: Challenge[] = [
       'Los resultados no eliminan la responsabilidad sobre el comportamiento. Liderar implica gestionar tanto qué se logra como cómo se logra.',
     facilitator: {
       notes:
-        'La opción A programa la consecuencia diferida “Se contagia el comportamiento”, que aparece 3 retos después (antes del reto 07).',
+        'La opción A programa la consecuencia diferida “Se contagia el comportamiento”, que aparece 3 retos después.',
     },
   },
   {
@@ -220,7 +220,7 @@ export const morningChallenges: Challenge[] = [
       success: {
         label: 'Decisión coherente',
         feedback: 'Decisión coherente con riesgos y objetivos.',
-        effect: { indicators: { recursos: 6, resultados: 4, liderazgo: 3 } },
+        effect: { indicators: { recursos: 6, resultados: 4, liderazgo: 1 } }, // balance v3: liderazgo 3 → 1
       },
       partial: { label: 'Decisión parcial', effect: { indicators: { recursos: 2, resultados: 2 } } },
       fail: {

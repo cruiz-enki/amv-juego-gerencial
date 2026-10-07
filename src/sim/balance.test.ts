@@ -16,7 +16,8 @@ describe('balance', () => {
     if (full) writeFileSync(new URL('../../docs/BALANCE_REPORT.md', import.meta.url), report.markdown)
     expect(report.unfinished).toBe(0)
     // Ningún perfil principal es imposible…
-    for (const p of content.profiles.slice(0, -1)) expect(report.profileShare.total[p.title], p.title).toBeGreaterThan(0.5)
+    // Con pocas partidas basta con que aparezca; la corrida completa exige > 0.5%.
+    for (const p of content.profiles.slice(0, -1)) expect(report.profileShare.total[p.title], p.title).toBeGreaterThan(full ? 0.5 : 0)
     // …y ninguno es automático al jugar al azar.
     for (const p of content.profiles) expect(report.profileShare.aleatoria[p.title], p.title).toBeLessThan(60)
     // Todos los eventos ocurren alguna vez.

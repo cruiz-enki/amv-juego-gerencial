@@ -2,12 +2,12 @@ import { useState } from 'react'
 import type { EventKind, EventTone, GameContent, GameEvent } from '../../engine/types'
 import { eventKindLabel, OPTION_LETTERS, toneMeta } from '../../lib/labels'
 import { useAdmin } from '../AdminContext'
-import { describeCondition } from '../describe'
+import { describeCondition, describeTiming } from '../describe'
 import { duplicateEvent, nextOptionId, renameId } from '../operations'
 import { ConditionEditor } from './ConditionEditor'
 import { ConsequenceEditor, IndicatorDeltas, IndicatorHeader } from './EffectEditor'
 import { DiffView, ItemHeader, Tabs } from './EditorParts'
-import { Card, Field, NumberInput, Select, SmallButton, TextArea, TextInput, Toggle } from './fields'
+import { Card, Field, Select, SmallButton, TextArea, TextInput, Toggle } from './fields'
 
 type Tab = 'general' | 'content' | 'condition' | 'effects' | 'options' | 'changes'
 
@@ -45,6 +45,10 @@ export function EventEditor({ id }: { id: string }) {
   const [newId, setNewId] = useState(id)
   if (!event) return <p className="text-muted">El evento no existe.</p>
   const sources = scheduledBy(draft, id)
+  const agendaOptions = draft.config.agenda
+    .map((a) => draft.challenges.find((c) => c.id === a.challenge))
+    .filter((c) => !!c)
+    .map((c) => ({ value: c!.id, label: `${c!.code ?? '—'} · ${c!.title}` }))
 
   return (
     <div>
@@ -144,16 +148,30 @@ export function EventEditor({ id }: { id: string }) {
               )}
             </Card>
             <Card title="Momento de aparición">
-              <div className="flex flex-wrap items-end gap-3">
-                <Field label="Desde el reto número">
-                  <NumberInput value={event.minStep === undefined ? undefined : event.minStep + 1} onChange={(v) => up((e) => void (e.minStep = v === undefined ? undefined : Math.max(0, v - 1)))} placeholder="cualquiera" />
+              <div className="grid gap-3 md:grid-cols-2">
+                <Field label="Aparece después de que termine el reto" hint="Vacío = desde el inicio">
+                  <Select
+                    value={event.afterChallenge ?? ''}
+                    onChange={(v) => up((e) => void (e.afterChallenge = v || undefined))}
+                    options={[{ value: '', label: 'Desde el inicio' }, ...agendaOptions]}
+                  />
                 </Field>
-                <Field label="Hasta el reto número">
-                  <NumberInput value={event.maxStep === undefined ? undefined : event.maxStep + 1} onChange={(v) => up((e) => void (e.maxStep = v === undefined ? undefined : Math.max(0, v - 1)))} placeholder="cualquiera" />
+                <Field label="Ya no aparece cuando termine el reto" hint="Vacío = hasta el final">
+                  <Select
+                    value={event.untilChallenge ?? ''}
+                    onChange={(v) => up((e) => void (e.untilChallenge = v || undefined))}
+                    options={[{ value: '', label: 'Hasta el final' }, ...agendaOptions]}
+                  />
                 </Field>
               </div>
-              <p className="mt-2 text-xs text-muted">El motor revisa las condiciones al iniciar cada reto (máximo un evento condicional por equipo por reto). “Desde el reto 11” = aparece después de terminar el reto 10.</p>
-              {event.trigger && <p className="mt-2 text-sm">Resumen: aparece cuando {describeCondition(event.trigger, draft)}{event.minStep !== undefined ? `, desde el reto ${event.minStep + 1}` : ''}{event.maxStep !== undefined ? ` hasta el reto ${event.maxStep + 1}` : ''}.</p>}
+              {(event.minStep !== undefined || event.maxStep !== undefined) && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-accent-2/40 bg-accent-2/5 p-2 text-sm">
+                  <span>Este evento también usa números de paso (formato anterior): {describeTiming({ minStep: event.minStep, maxStep: event.maxStep }, draft)}. Se descuadran si reordenas la agenda.</span>
+                  <SmallButton onClick={() => up((e) => { e.minStep = undefined; e.maxStep = undefined })}>Quitar números de paso</SmallButton>
+                </div>
+              )}
+              <p className="mt-2 text-xs text-muted">El motor revisa las condiciones al iniciar cada reto (máximo un evento condicional por equipo por reto). Las anclas por reto siguen funcionando aunque reordenes la agenda.</p>
+              <p className="mt-2 text-sm">Resumen: aparece {event.trigger ? `cuando ${describeCondition(event.trigger, draft)}, ` : ''}{describeTiming(event, draft)}.</p>
             </Card>
             <Card title="Lo programan">
               {sources.length ? (

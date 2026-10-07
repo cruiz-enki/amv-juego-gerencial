@@ -53,7 +53,7 @@ export const afternoonChallenges: Challenge[] = [
     clock: '14:40',
     title: 'Quiere, pero no puede todavía',
     type: 'open',
-    categories: ['equipos', 'liderazgo'],
+    categories: ['equipos', 'liderazgo', 'ie-empatia'],
     chapter: 'tarde',
     turnMode: 'all-teams',
     minutes: 5,
@@ -104,7 +104,7 @@ export const afternoonChallenges: Challenge[] = [
     title: 'El cliente quiere todo',
     type: 'negotiation',
     inPerson: true,
-    categories: ['negociacion', 'comunicacion'],
+    categories: ['negociacion', 'comunicacion', 'ie-autorregulacion'],
     chapter: 'tarde',
     turnMode: 'all-teams',
     minutes: 6,
@@ -156,7 +156,8 @@ export const afternoonChallenges: Challenge[] = [
     ],
     instructions: ['Segunda parte: elijan UN elemento del FODA sobre el que actuarían primero y argumenten.'],
     outcomes: {
-      success: { label: 'Correcto + buena prioridad', effect: { indicators: { resultados: 5, liderazgo: 3 } } },
+      // balance v3: liderazgo 3 → 1
+      success: { label: 'Correcto + buena prioridad', effect: { indicators: { resultados: 5, liderazgo: 1 } } },
       partial: { label: 'Correcto', effect: { indicators: { resultados: 3 } } },
     },
     facilitator: {
