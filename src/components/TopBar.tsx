@@ -1,5 +1,6 @@
 import { useGame } from '../state/useGame'
 import { GameProgress } from './GameProgress'
+import { assetUrl } from '../lib/paths'
 
 function toggleFullscreen() {
   if (document.fullscreenElement) void document.exitFullscreen()
@@ -12,7 +13,7 @@ export function TopBar({ onOpenFacilitator }: { onOpenFacilitator: () => void })
   return (
     <header className="flex items-center justify-between gap-3 border-b border-line bg-ink/60 px-4 py-3 md:gap-6 md:px-8 backdrop-blur">
       <div className="flex min-w-0 items-center gap-3">
-        <img src="/favicon.svg" alt="" className="size-10" />
+        <img src={assetUrl('/favicon.svg')} alt="" className="size-10" />
         <div className="hidden min-w-0 sm:block">
           <p className="truncate font-display text-xl font-bold tracking-tight">{content.config.title}</p>
           <p className="truncate text-xs tracking-widest text-muted uppercase">Centro de mando</p>

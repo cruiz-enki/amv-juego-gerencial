@@ -6,6 +6,7 @@ import { TeamBadge } from '../TeamBadge'
 import { Button } from '../ui/Button'
 import { NumericEffects } from './NumericEffects'
 import { Section } from './Section'
+import { viewHref } from '../../lib/paths'
 
 /** Información privada del reto + resolución, banderas y bonos por equipo. */
 export function CurrentChallenge() {
@@ -98,7 +99,7 @@ export function CurrentChallenge() {
           </Button>
         )}
         {challenge.secret && (
-          <Button size="sm" onClick={() => window.open('/privado', 'punto-critico-privado', 'width=900,height=900')}>
+          <Button size="sm" onClick={() => window.open(viewHref('privado'), 'punto-critico-privado', 'width=900,height=900')}>
             🔒 Vista privada: {challenge.secret.title}
           </Button>
         )}
