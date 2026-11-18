@@ -28,6 +28,10 @@ desplegar producción automáticamente.
 | **https://amv-juego-gerencial.vercel.app/privado** | **Vista privada**: figura del reto 02 y tarjetas secretas del reto 06. Nunca en el proyector. |
 | **https://amv-juego-gerencial.vercel.app/admin** | **Administración de contenido**: revisar y editar retos, eventos, perfiles… antes de jugar. |
 
+**Réplica en GitHub Pages (GH-001):** `https://cruiz-enki.github.io/amv-juego-gerencial/` — mismas
+vistas con hash: `…/#/facilitador`, `…/#/privado`, `…/#/admin`. Detalles, configuración y reversión en
+[docs/DEPLOY_GITHUB_PAGES.md](docs/DEPLOY_GITHUB_PAGES.md).
+
 Las tres vistas se sincronizan solas **si están abiertas en el mismo navegador del mismo equipo**
 (comparten el almacenamiento local). En un dispositivo distinto (p. ej. tu teléfono) la partida es
 independiente. El panel también se abre dentro del proyector con el botón 🎛️ o la tecla **F**.
