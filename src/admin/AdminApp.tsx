@@ -10,6 +10,7 @@ import { EventEditor } from './ui/EventEditor'
 import { Badge, SmallButton } from './ui/fields'
 import { PreviewModal } from './ui/Preview'
 import { AwardsSection, ProfilesSection } from './ui/ProfilesAwards'
+import { assetUrl } from '../lib/paths'
 
 export function AdminApp() {
   return (
@@ -111,7 +112,7 @@ function Sidebar() {
         </span>
       </button>
       <div className="mt-auto pt-6 text-xs text-faint">
-        <a href="/" className="text-accent hover:underline">← Ir al juego</a>
+        <a href={import.meta.env.BASE_URL} className="text-accent hover:underline">← Ir al juego</a>
       </div>
     </nav>
   )
@@ -226,7 +227,7 @@ function AdminLayout() {
     <div className="grid h-screen grid-rows-[auto_1fr] text-base">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-ink/90 px-5 py-2.5">
         <div className="flex items-center gap-3">
-          <img src="/favicon.svg" alt="" className="size-8" />
+          <img src={assetUrl('/favicon.svg')} alt="" className="size-8" />
           <div>
             <p className="font-display text-lg leading-tight font-bold">Punto Crítico · Administración de contenido</p>
             <p className="text-xs text-muted">

@@ -1,5 +1,6 @@
 import { Button } from '../components/ui/Button'
 import { useGame } from '../state/useGame'
+import { viewHref } from '../lib/paths'
 
 export function HomeScreen() {
   const { content, dispatch, contentSource, snapshot } = useGame()
@@ -32,7 +33,7 @@ export function HomeScreen() {
             ? `configuración personalizada del ${new Date(snapshot.createdAt).toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`
             : 'configuración original'}
         </p>
-        <a href="/admin" className="mt-4 inline-block text-sm text-muted underline-offset-4 hover:text-accent hover:underline">
+        <a href={viewHref('admin')} className="mt-4 inline-block text-sm text-muted underline-offset-4 hover:text-accent hover:underline">
           ⚙️ Administrar contenido
         </a>
       </div>

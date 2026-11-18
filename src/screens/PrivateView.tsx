@@ -1,5 +1,6 @@
 import { currentChallenge } from '../engine/selectors'
 import { useGame } from '../state/useGame'
+import { assetUrl } from '../lib/paths'
 
 /**
  * Vista privada (#/privado): muestra la información secreta del reto actual
@@ -16,7 +17,7 @@ export function PrivateView() {
     <main className="mx-auto max-w-5xl p-6">
       <p className="text-sm font-semibold tracking-[0.2em] text-accent-2 uppercase">🔒 Sólo para quien debe verlo · {challenge.title}</p>
       <h1 className="mt-2 font-display text-4xl font-bold">{secret.title}</h1>
-      {secret.image && <img src={secret.image} alt="Figura secreta" className="mx-auto mt-6 max-h-[70vh] rounded-2xl bg-white p-6" />}
+      {secret.image && <img src={assetUrl(secret.image)} alt="Figura secreta" className="mx-auto mt-6 max-h-[70vh] rounded-2xl bg-white p-6" />}
       {secret.body && <p className="mt-4 text-lg text-muted">{secret.body}</p>}
       {secret.rules && (
         <ul className="mt-4 grid gap-1 text-xl">

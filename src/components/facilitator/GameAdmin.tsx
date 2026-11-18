@@ -3,6 +3,7 @@ import { downloadBackup, parseBackup } from '../../state/persistence'
 import { useGame } from '../../state/useGame'
 import { Button } from '../ui/Button'
 import { Section } from './Section'
+import { viewHref } from '../../lib/paths'
 
 export function GameAdmin() {
   const { state, content, dispatch, reset, load, saveFailed } = useGame()
@@ -23,7 +24,7 @@ export function GameAdmin() {
         </p>
       )}
       <div className="grid grid-cols-2 gap-2">
-        <Button size="sm" onClick={() => window.open('/facilitador', 'punto-critico-facilitador', 'width=560,height=900')}>
+        <Button size="sm" onClick={() => window.open(viewHref('facilitador'), 'punto-critico-facilitador', 'width=560,height=900')}>
           🪟 Abrir en otra ventana
         </Button>
         <Button size="sm" onClick={() => downloadBackup({ state, past: [], content })}>💾 Descargar respaldo</Button>

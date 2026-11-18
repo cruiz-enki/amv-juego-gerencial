@@ -14,17 +14,20 @@ import { HomeScreen } from './screens/HomeScreen'
 import { PrivateView } from './screens/PrivateView'
 import { ScoreboardScreen } from './screens/ScoreboardScreen'
 import { SetupScreen } from './screens/SetupScreen'
+import { pathWithoutBase } from './lib/paths'
 import { useGame } from './state/useGame'
 
 type Route = 'projector' | 'facilitator' | 'private' | 'admin'
 
-/** Rutas: /facilitador y /privado (también aceptan #/facilitador y #/privado). */
+/** Rutas: /admin, /facilitador y /privado (también aceptan #/admin, #/facilitador y #/privado; ver src/lib/paths.ts). */
 // /admin se carga aparte: el proyector no descarga el código del editor.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })))
 
 function readRoute(): Route {
-  const path = `${window.location.pathname}${window.location.hash}`.toLowerCase()
-  if (window.location.pathname.toLowerCase().startsWith('/admin')) return 'admin'
+  const pathname = pathWithoutBase(window.location.pathname).toLowerCase()
+  const hash = window.location.hash.toLowerCase()
+  const path = `${pathname}${hash}`
+  if (pathname.startsWith('/admin') || hash.startsWith('#/admin')) return 'admin'
   if (path.includes('facilitador')) return 'facilitator'
   if (path.includes('privado')) return 'private'
   return 'projector'
